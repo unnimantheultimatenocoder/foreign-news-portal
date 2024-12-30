@@ -51,14 +51,17 @@ export const getArticles = async ({
     .order('published_at', { ascending: false });
 
   if (saved) {
-    const { data: savedArticles } = await supabase
-      .from('saved_articles')
-      .select('article_id')
-      .eq('user_id', supabase.auth.getUser()?.data?.user?.id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: savedArticles } = await supabase
+        .from('saved_articles')
+        .select('article_id')
+        .eq('user_id', user.id);
 
-    if (savedArticles) {
-      const articleIds = savedArticles.map(sa => sa.article_id);
-      query = query.in('id', articleIds);
+      if (savedArticles) {
+        const articleIds = savedArticles.map(sa => sa.article_id);
+        query = query.in('id', articleIds);
+      }
     }
   }
 
