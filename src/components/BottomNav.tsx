@@ -1,14 +1,19 @@
-import { Home, Search, BookmarkIcon, User } from "lucide-react";
+import { Home, Search, BookmarkIcon, User, Grid } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const navItems = [
-  { icon: Home, label: "Home" },
-  { icon: Search, label: "Search" },
-  { icon: BookmarkIcon, label: "Saved" },
-  { icon: User, label: "Profile" },
+  { icon: Home, label: "Home", path: "/" },
+  { icon: Grid, label: "Categories", path: "/categories" },
+  { icon: Search, label: "Search", path: "/search" },
+  { icon: BookmarkIcon, label: "Saved", path: "/saved" },
+  { icon: User, label: "Profile", path: "/profile" },
 ];
 
 export const BottomNav = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <motion.div
       initial={{ y: 100 }}
@@ -19,7 +24,14 @@ export const BottomNav = () => {
         <ul className="flex justify-around items-center">
           {navItems.map((item) => (
             <li key={item.label}>
-              <button className="flex flex-col items-center p-2 text-secondary hover:text-accent transition-colors">
+              <button
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center p-2 transition-colors ${
+                  location.pathname === item.path
+                    ? "text-accent"
+                    : "text-secondary hover:text-accent"
+                }`}
+              >
                 <item.icon className="w-6 h-6" />
                 <span className="text-xs mt-1">{item.label}</span>
               </button>
