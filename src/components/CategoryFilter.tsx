@@ -1,22 +1,20 @@
 import { motion } from "framer-motion";
 
-const categories = [
-  "All",
-  "Immigration",
-  "Jobs",
-  "Education",
-  "Visa Updates",
-  "Migration",
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface CategoryFilterProps {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
+  categories: Category[];
 }
 
 export const CategoryFilter = ({
   selectedCategory,
   onSelectCategory,
+  categories,
 }: CategoryFilterProps) => {
   return (
     <motion.div
@@ -27,15 +25,15 @@ export const CategoryFilter = ({
       <div className="flex space-x-2 px-4 min-w-max">
         {categories.map((category) => (
           <button
-            key={category}
-            onClick={() => onSelectCategory(category)}
+            key={category.id}
+            onClick={() => onSelectCategory(category.name)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === category
+              selectedCategory === category.name
                 ? "bg-accent text-white"
                 : "bg-gray-100 text-secondary hover:bg-gray-200"
             }`}
           >
-            {category}
+            {category.name}
           </button>
         ))}
       </div>
