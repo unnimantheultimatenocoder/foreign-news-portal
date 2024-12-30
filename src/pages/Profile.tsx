@@ -20,6 +20,14 @@ const Profile = () => {
         description: "Your preferences have been updated.",
       });
     },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update preferences. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error updating preferences:", error);
+    },
   });
 
   const handleNotificationToggle = (type: 'email' | 'push') => {

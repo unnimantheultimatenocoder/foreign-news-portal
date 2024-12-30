@@ -34,11 +34,13 @@ export const getArticles = async ({
   limit = 10,
   category,
   search,
+  saved,
 }: {
   page?: number;
   limit?: number;
   category?: string;
   search?: string;
+  saved?: boolean;
 }) => {
   let query = supabase
     .from('articles')
@@ -46,8 +48,19 @@ export const getArticles = async ({
       *,
       category:categories(*)
     `)
-    .order('published_at', { ascending: false })
-    .range((page - 1) * limit, page * limit - 1);
+    .order('published_at', { ascending: false });
+
+  if (saved) {
+    const { data: savedArticles } = await supabase
+      .from('saved_articles')
+      .select('article_id')
+      .eq('user_id', supabase.auth.getUser()?.data?.user?.id);
+
+    if (savedArticles) {
+      const articleIds = savedArticles.map(sa => sa.article_id);
+      query = query.in('id', articleIds);
+    }
+  }
 
   if (category) {
     query = query.eq('category_id', category);
@@ -56,6 +69,8 @@ export const getArticles = async ({
   if (search) {
     query = query.ilike('title', `%${search}%`);
   }
+
+  query = query.range((page - 1) * limit, page * limit - 1);
 
   const { data, error } = await query;
   if (error) throw error;
@@ -101,9 +116,21 @@ export const getUserPreferences = async () => {
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('notification_settings')
-    .single();
+    .maybeSingle();
 
   if (profileError) throw profileError;
+
+  if (!profile) {
+    // Return default preferences if no profile exists
+    return {
+      notification_settings: {
+        email: false,
+        push: false,
+        frequency: 'daily',
+      },
+      categories: [],
+    } as UserPreferences;
+  }
 
   const { data: categories, error: categoriesError } = await supabase
     .from('user_category_preferences')
@@ -113,7 +140,7 @@ export const getUserPreferences = async () => {
 
   return {
     notification_settings: profile.notification_settings,
-    categories: categories.map(c => c.category_id),
+    categories: categories?.map(c => c.category_id) || [],
   } as UserPreferences;
 };
 
