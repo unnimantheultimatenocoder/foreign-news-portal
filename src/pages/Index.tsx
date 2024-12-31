@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { getArticles, getUserPreferences } from "@/lib/api";
+import { getArticles, getUserPreferences, getCategories } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { BottomNav } from "@/components/BottomNav";
@@ -9,11 +9,18 @@ import { useAppStore } from "@/stores/useAppStore";
 
 const Index = () => {
   const { activeCategories, setPreferences } = useAppStore();
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // Fetch user preferences
   const { data: preferences } = useQuery({
     queryKey: ['userPreferences'],
     queryFn: getUserPreferences,
+  });
+
+  // Fetch categories
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
   });
 
   // Update preferences in store when they change
@@ -48,7 +55,11 @@ const Index = () => {
         </div>
       </header>
 
-      <CategoryFilter />
+      <CategoryFilter 
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        categories={categories || []}
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <motion.div
@@ -57,7 +68,15 @@ const Index = () => {
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
           {articles?.map((article) => (
-            <NewsCard key={article.id} article={article} />
+            <NewsCard
+              key={article.id}
+              title={article.title}
+              summary={article.summary}
+              imageUrl={article.image_url || '/placeholder.svg'}
+              category={article.category?.name || 'Uncategorized'}
+              date={new Date(article.published_at).toLocaleDateString()}
+              url={article.original_url}
+            />
           ))}
         </motion.div>
       </main>
