@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Bookmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface NewsCardProps {
+  id: string;
   title: string;
   summary: string;
   imageUrl: string;
@@ -12,9 +15,11 @@ interface NewsCardProps {
   url: string;
 }
 
-export const NewsCard = ({ title, summary, imageUrl, category, date, url }: NewsCardProps) => {
+export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: NewsCardProps) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -38,13 +43,84 @@ export const NewsCard = ({ title, summary, imageUrl, category, date, url }: News
     };
   }, [imageUrl]);
 
+  useEffect(() => {
+    const checkIfSaved = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('saved_articles')
+          .select('*')
+          .eq('article_id', id)
+          .eq('user_id', user.id)
+          .single();
+        setIsSaved(!!data);
+      }
+    };
+    checkIfSaved();
+  }, [id]);
+
+  const handleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please login to save articles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (isSaved) {
+        await supabase
+          .from('saved_articles')
+          .delete()
+          .eq('article_id', id)
+          .eq('user_id', user.id);
+        setIsSaved(false);
+        toast({
+          title: "Success",
+          description: "Article removed from saved articles",
+        });
+      } else {
+        await supabase
+          .from('saved_articles')
+          .insert([
+            { article_id: id, user_id: user.id }
+          ]);
+        setIsSaved(true);
+        toast({
+          title: "Success",
+          description: "Article saved successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save article",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       className="w-full"
     >
-      <Card className="overflow-hidden cursor-pointer group">
+      <Card className="overflow-hidden cursor-pointer group relative">
+        <button
+          onClick={handleSave}
+          className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+        >
+          <Bookmark
+            className={`w-4 h-4 ${isSaved ? 'fill-current text-accent' : 'text-gray-500'}`}
+          />
+        </button>
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
           <div className="relative h-48 overflow-hidden" data-image-url={imageUrl}>
             {isIntersecting && (
