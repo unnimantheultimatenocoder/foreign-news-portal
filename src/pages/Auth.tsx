@@ -20,11 +20,20 @@ const AuthPage = () => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('error_description');
     if (error) {
-      toast({
-        title: "Authentication Error",
-        description: error,
-        variant: "destructive",
-      });
+      // Handle rate limit error specifically
+      if (error.includes('rate_limit')) {
+        toast({
+          title: "Please Wait",
+          description: "For security purposes, please wait a minute before trying again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Authentication Error",
+          description: error,
+          variant: "destructive",
+        });
+      }
     }
 
     return () => {
