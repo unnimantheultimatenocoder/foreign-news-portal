@@ -11,16 +11,20 @@ const Index = () => {
   const { activeCategories, setPreferences } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // Fetch user preferences
+  // Fetch user preferences with caching
   const { data: preferences } = useQuery({
     queryKey: ['userPreferences'],
     queryFn: getUserPreferences,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    cacheTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
   });
 
-  // Fetch categories
+  // Fetch categories with caching
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
+    staleTime: 60 * 60 * 1000, // Categories are relatively static, keep fresh for 1 hour
+    cacheTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
   });
 
   // Update preferences in store when they change
@@ -30,11 +34,24 @@ const Index = () => {
     }
   }, [preferences, setPreferences]);
 
-  // Fetch articles based on active categories
+  // Fetch articles based on active categories with caching
   const { data: articles, isLoading: isArticlesLoading } = useQuery({
     queryKey: ['articles', { categories: activeCategories }],
     queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }),
+    staleTime: 2 * 60 * 1000, // Consider articles fresh for 2 minutes
+    cacheTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
   });
+
+  // Register service worker for offline support
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+      });
+    }
+  }, []);
 
   if (isArticlesLoading || isCategoriesLoading) {
     return (
@@ -58,7 +75,7 @@ const Index = () => {
       <CategoryFilter 
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        categories={categories}
+        categories={categories || []}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
