@@ -3,15 +3,15 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/");
       }
     });
@@ -20,8 +20,16 @@ const AuthPage = () => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('error_description');
     if (error) {
-      toast.error(error);
+      toast({
+        title: "Authentication Error",
+        description: error,
+        variant: "destructive",
+      });
     }
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
@@ -44,6 +52,13 @@ const AuthPage = () => {
           theme="light"
           providers={[]}
           redirectTo={`${window.location.origin}/auth/callback`}
+          onError={(error) => {
+            toast({
+              title: "Authentication Error",
+              description: error.message,
+              variant: "destructive",
+            });
+          }}
           showLinks={true}
           view="sign_up"
           magicLink={false}
