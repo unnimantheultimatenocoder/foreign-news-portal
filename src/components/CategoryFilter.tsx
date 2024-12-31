@@ -8,14 +8,17 @@ interface Category {
 interface CategoryFilterProps {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
-  categories: Category[];
+  categories?: Category[];
 }
 
 export const CategoryFilter = ({
   selectedCategory,
   onSelectCategory,
-  categories = [],
+  categories,
 }: CategoryFilterProps) => {
+  // Ensure categories is always an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -33,7 +36,7 @@ export const CategoryFilter = ({
         >
           All
         </button>
-        {categories.map((category) => (
+        {safeCategories.map((category) => (
           <button
             key={category.id}
             onClick={() => onSelectCategory(category.name)}

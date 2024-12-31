@@ -18,7 +18,7 @@ const Index = () => {
   });
 
   // Fetch categories
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   });
@@ -31,17 +31,17 @@ const Index = () => {
   }, [preferences, setPreferences]);
 
   // Fetch articles based on active categories
-  const { data: articles, isLoading } = useQuery({
+  const { data: articles, isLoading: isArticlesLoading } = useQuery({
     queryKey: ['articles', { categories: activeCategories }],
     queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }),
   });
 
-  if (isLoading) {
+  if (isArticlesLoading || isCategoriesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-          <p className="mt-4 text-secondary">Loading articles...</p>
+          <p className="mt-4 text-secondary">Loading...</p>
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ const Index = () => {
       <CategoryFilter 
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        categories={categories || []}
+        categories={categories}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
