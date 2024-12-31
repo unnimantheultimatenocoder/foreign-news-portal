@@ -43,9 +43,10 @@ const AuthPage = () => {
           }}
           theme="light"
           providers={[]}
-          redirectTo={`${window.location.origin}/auth`}
+          redirectTo={`${window.location.origin}/auth/callback`}
           showLinks={true}
-          view="sign_in"
+          view="sign_up"
+          magicLink={false}
         />
       </div>
     </div>
