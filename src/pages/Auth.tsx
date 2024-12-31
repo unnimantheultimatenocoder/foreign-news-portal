@@ -47,18 +47,17 @@ const AuthPage = () => {
                   brandAccent: 'rgb(var(--color-primary))',
                 }
               }
+            },
+            // Handle errors through the appearance prop
+            style: {
+              message: {
+                color: 'rgb(239 68 68)'
+              }
             }
           }}
           theme="light"
           providers={[]}
           redirectTo={`${window.location.origin}/auth/callback`}
-          onError={(error) => {
-            toast({
-              title: "Authentication Error",
-              description: error.message,
-              variant: "destructive",
-            });
-          }}
           showLinks={true}
           view="sign_up"
           magicLink={false}
