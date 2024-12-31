@@ -1,27 +1,35 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { getArticles, getUserPreferences } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
-import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { getArticles, getCategories } from "@/lib/api";
-import { useToast } from "@/components/ui/use-toast";
+import { BottomNav } from "@/components/BottomNav";
+import { useAppStore } from "@/stores/useAppStore";
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { activeCategories, setPreferences } = useAppStore();
 
-  const { data: articles, isLoading: articlesLoading } = useQuery({
-    queryKey: ['articles', { category: selectedCategory }],
-    queryFn: () => getArticles({ category: selectedCategory || undefined }),
+  // Fetch user preferences
+  const { data: preferences } = useQuery({
+    queryKey: ['userPreferences'],
+    queryFn: getUserPreferences,
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: getCategories,
+  // Update preferences in store when they change
+  useEffect(() => {
+    if (preferences) {
+      setPreferences(preferences);
+    }
+  }, [preferences, setPreferences]);
+
+  // Fetch articles based on active categories
+  const { data: articles, isLoading } = useQuery({
+    queryKey: ['articles', { categories: activeCategories }],
+    queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }),
   });
 
-  if (articlesLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -36,33 +44,20 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-primary">Global News</h1>
-          {categories && (
-            <CategoryFilter
-              selectedCategory={selectedCategory || "All"}
-              onSelectCategory={(category) => setSelectedCategory(category === "All" ? null : category)}
-              categories={[{ id: "all", name: "All" }, ...categories]}
-            />
-          )}
+          <h1 className="text-2xl font-bold text-primary">News Feed</h1>
         </div>
       </header>
+
+      <CategoryFilter />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
           {articles?.map((article) => (
-            <NewsCard
-              key={article.id}
-              title={article.title}
-              summary={article.summary}
-              imageUrl={article.image_url || "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"}
-              category={article.category?.name || "Uncategorized"}
-              date={new Date(article.published_at).toLocaleDateString()}
-              url={article.original_url}
-            />
+            <NewsCard key={article.id} article={article} />
           ))}
         </motion.div>
       </main>
