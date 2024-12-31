@@ -58,6 +58,7 @@ const Search = () => {
             {articles?.map((article) => (
               <NewsCard
                 key={article.id}
+                id={article.id}
                 title={article.title}
                 summary={article.summary}
                 imageUrl={article.image_url || "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"}

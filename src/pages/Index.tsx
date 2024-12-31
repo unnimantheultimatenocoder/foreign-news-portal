@@ -11,38 +11,33 @@ const Index = () => {
   const { activeCategories, setPreferences } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // Fetch user preferences with caching
   const { data: preferences } = useQuery({
     queryKey: ['userPreferences'],
     queryFn: getUserPreferences,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
-  // Fetch categories with caching
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
-    staleTime: 60 * 60 * 1000, // Categories are relatively static, keep fresh for 1 hour
-    gcTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
+    staleTime: 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
   });
 
-  // Update preferences in store when they change
   useEffect(() => {
     if (preferences) {
       setPreferences(preferences);
     }
   }, [preferences, setPreferences]);
 
-  // Fetch articles based on active categories with caching
   const { data: articles, isLoading: isArticlesLoading } = useQuery({
     queryKey: ['articles', { categories: activeCategories }],
     queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }),
-    staleTime: 2 * 60 * 1000, // Consider articles fresh for 2 minutes
-    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
+    staleTime: 2 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
   });
 
-  // Register service worker for offline support
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -87,6 +82,7 @@ const Index = () => {
           {articles?.map((article) => (
             <NewsCard
               key={article.id}
+              id={article.id}
               title={article.title}
               summary={article.summary}
               imageUrl={article.image_url || '/placeholder.svg'}
