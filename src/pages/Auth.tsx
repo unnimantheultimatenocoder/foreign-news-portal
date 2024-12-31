@@ -3,6 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -14,6 +15,13 @@ const AuthPage = () => {
         navigate("/");
       }
     });
+
+    // Check for auth error in URL
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error_description');
+    if (error) {
+      toast.error(error);
+    }
   }, [navigate]);
 
   return (
@@ -22,9 +30,23 @@ const AuthPage = () => {
         <h1 className="text-2xl font-bold text-center mb-6 text-primary">Welcome to News App</h1>
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
+          appearance={{ 
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: 'rgb(var(--color-primary))',
+                  brandAccent: 'rgb(var(--color-primary))',
+                }
+              }
+            }
+          }}
           theme="light"
           providers={[]}
+          redirectTo={window.location.origin}
+          onError={(error) => {
+            toast.error(error.message);
+          }}
         />
       </div>
     </div>
