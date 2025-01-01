@@ -1,8 +1,8 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export function AdminRoute({ children }: { children: React.ReactNode }) {
+export default function AdminRoute() {
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ['admin-check'],
     queryFn: async () => {
@@ -27,5 +27,5 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }
