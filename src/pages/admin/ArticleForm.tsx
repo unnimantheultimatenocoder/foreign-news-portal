@@ -35,13 +35,27 @@ interface ArticleFormData {
   category_id: string;
   scheduled_for: Date | null;
   status: 'draft' | 'published' | 'archived';
+  source: string;
 }
+
+const defaultValues: Partial<ArticleFormData> = {
+  title: '',
+  summary: '',
+  original_url: '',
+  image_url: '',
+  category_id: '',
+  scheduled_for: null,
+  status: 'draft',
+  source: 'manual', // Default source for manually created articles
+};
 
 export default function ArticleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const form = useForm<ArticleFormData>();
+  const form = useForm<ArticleFormData>({
+    defaultValues,
+  });
 
   // Fetch categories for the select input
   const { data: categories } = useQuery({
@@ -80,9 +94,10 @@ export default function ArticleForm() {
         summary: article.summary,
         original_url: article.original_url,
         image_url: article.image_url || '',
-        category_id: article.category_id,
+        category_id: article.category_id || '',
         scheduled_for: article.scheduled_for ? new Date(article.scheduled_for) : null,
-        status: article.status,
+        status: article.status as 'draft' | 'published' | 'archived',
+        source: article.source,
       });
     }
   }, [article, form]);
@@ -95,6 +110,7 @@ export default function ArticleForm() {
         ...data,
         moderated_by: userData.user?.id,
         moderated_at: new Date().toISOString(),
+        scheduled_for: data.scheduled_for?.toISOString() || null,
       };
 
       if (id) {
