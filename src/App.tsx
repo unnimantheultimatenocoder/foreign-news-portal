@@ -6,19 +6,22 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminRoute } from "@/components/AdminRoute";
 import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
 import SavedNews from "./pages/SavedNews";
 import Auth from "./pages/Auth";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminArticles from "./pages/admin/Articles";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
@@ -90,6 +93,23 @@ const App = () => (
                 <ProtectedRoute>
                   <SavedNews />
                 </ProtectedRoute>
+              }
+            />
+            {/* Admin Routes */}
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/articles"
+              element={
+                <AdminRoute>
+                  <AdminArticles />
+                </AdminRoute>
               }
             />
           </Routes>
