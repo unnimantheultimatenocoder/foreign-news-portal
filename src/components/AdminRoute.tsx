@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export default function AdminRoute() {
+const AdminRoute = () => {
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ['admin-check'],
     queryFn: async () => {
@@ -28,4 +28,6 @@ export default function AdminRoute() {
   }
 
   return <Outlet />;
-}
+};
+
+export default AdminRoute;

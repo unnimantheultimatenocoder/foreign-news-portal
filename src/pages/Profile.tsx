@@ -1,13 +1,34 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getUserPreferences, updateUserPreferences } from "@/lib/api";
 import { BottomNav } from "@/components/BottomNav";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
   const { toast } = useToast();
-  const { data: preferences, isLoading } = useQuery({
+  const queryClient = useQueryClient();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user data
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setEmail(user.email || "");
+      }
+      setLoading(false);
+    };
+    getUserEmail();
+  }, []);
+
+  const { data: preferences, isLoading: preferencesLoading } = useQuery({
     queryKey: ['userPreferences'],
     queryFn: getUserPreferences,
   });
@@ -15,6 +36,7 @@ const Profile = () => {
   const mutation = useMutation({
     mutationFn: updateUserPreferences,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPreferences'] });
       toast({
         title: "Success",
         description: "Your preferences have been updated.",
@@ -44,11 +66,27 @@ const Profile = () => {
     mutation.mutate(newSettings);
   };
 
-  if (isLoading) {
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading || preferencesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-secondary">Loading profile...</p>
         </div>
       </div>
@@ -63,10 +101,40 @@ const Profile = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg shadow p-6"
+        >
+          <h2 className="text-xl font-semibold text-primary mb-4">Account Information</h2>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                disabled
+                className="mt-1"
+              />
+            </div>
+            <Button
+              variant="destructive"
+              onClick={handleSignOut}
+              className="w-full sm:w-auto"
+            >
+              Sign Out
+            </Button>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="bg-white rounded-lg shadow p-6"
         >
           <h2 className="text-xl font-semibold text-primary mb-6">Notification Preferences</h2>
