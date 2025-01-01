@@ -12,10 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminArticles() {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const { data: articles, isLoading } = useQuery({
     queryKey: ['admin-articles', search],
@@ -68,7 +70,7 @@ export default function AdminArticles() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Articles Management</h1>
-        <Button onClick={() => window.location.href = "/admin/articles/new"}>
+        <Button onClick={() => navigate('/admin/articles/new')}>
           Add New Article
         </Button>
       </div>
@@ -106,7 +108,7 @@ export default function AdminArticles() {
                 <TableCell>{article.category?.name}</TableCell>
                 <TableCell>{article.status}</TableCell>
                 <TableCell>
-                  {new Date(article.published_at).toLocaleDateString()}
+                  {article.published_at ? new Date(article.published_at).toLocaleDateString() : 'Not published'}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
@@ -120,7 +122,7 @@ export default function AdminArticles() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.location.href = `/admin/articles/edit/${article.id}`}
+                      onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
                     >
                       Edit
                     </Button>

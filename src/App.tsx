@@ -15,6 +15,7 @@ import SavedNews from "./pages/SavedNews";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminArticles from "./pages/admin/Articles";
+import ArticleForm from "./pages/admin/ArticleForm";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,6 +110,22 @@ const App = () => (
               element={
                 <AdminRoute>
                   <AdminArticles />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/articles/new"
+              element={
+                <AdminRoute>
+                  <ArticleForm />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/articles/edit/:id"
+              element={
+                <AdminRoute>
+                  <ArticleForm />
                 </AdminRoute>
               }
             />
