@@ -41,7 +41,7 @@ const Home = () => {
             <CategoryFilter
               selectedCategory={selectedCategory || "All"}
               onSelectCategory={(category) => setSelectedCategory(category === "All" ? null : category)}
-              categories={[{ id: "all", name: "All" }, ...categories]}
+              categories={categories}
             />
           )}
         </div>
