@@ -24,7 +24,8 @@ export const AIChat = () => {
 
     try {
       setIsLoading(true)
-      const newMessages = [...messages, { role: 'user', content: input }]
+      const userMessage: Message = { role: 'user', content: input }
+      const newMessages = [...messages, userMessage]
       setMessages(newMessages)
       setInput("")
 
@@ -34,10 +35,11 @@ export const AIChat = () => {
 
       if (error) throw error
 
-      setMessages([...newMessages, { 
+      const assistantMessage: Message = { 
         role: 'assistant', 
         content: data.choices[0].message.content 
-      }])
+      }
+      setMessages([...newMessages, assistantMessage])
     } catch (error) {
       console.error('Error:', error)
       toast({
