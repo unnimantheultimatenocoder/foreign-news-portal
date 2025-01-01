@@ -5,6 +5,7 @@ import { getArticles, getUserPreferences, getCategories } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { BottomNav } from "@/components/BottomNav";
+import { AIChat } from "@/components/AIChat";
 import { useAppStore } from "@/stores/useAppStore";
 
 const Index = () => {
@@ -74,24 +75,31 @@ const Index = () => {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-        >
-          {articles?.map((article) => (
-            <NewsCard
-              key={article.id}
-              id={article.id}
-              title={article.title}
-              summary={article.summary}
-              imageUrl={article.image_url || '/placeholder.svg'}
-              category={article.category?.name || 'Uncategorized'}
-              date={new Date(article.published_at).toLocaleDateString()}
-              url={article.original_url}
-            />
-          ))}
-        </motion.div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid gap-6 md:grid-cols-2"
+            >
+              {articles?.map((article) => (
+                <NewsCard
+                  key={article.id}
+                  id={article.id}
+                  title={article.title}
+                  summary={article.summary}
+                  imageUrl={article.image_url || '/placeholder.svg'}
+                  category={article.category?.name || 'Uncategorized'}
+                  date={new Date(article.published_at).toLocaleDateString()}
+                  url={article.original_url}
+                />
+              ))}
+            </motion.div>
+          </div>
+          <div className="lg:col-span-1">
+            <AIChat />
+          </div>
+        </div>
       </main>
 
       <BottomNav />
