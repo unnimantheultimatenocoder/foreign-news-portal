@@ -85,12 +85,12 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       break;
     case 'shared':
       // Get articles with the most saves (since we don't track shares separately)
-      query = query.order('saves.count', { ascending: false });
+      query = query.order('saves', { foreignTable: 'saved_articles', ascending: false });
       break;
     case 'trending':
     default:
       // Get articles with the highest number of saves
-      query = query.order('saves.count', { ascending: false });
+      query = query.order('saves', { foreignTable: 'saved_articles', ascending: false });
       break;
   }
 
@@ -101,8 +101,8 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
 
   // Transform the data to match the expected type
   const transformedData = data?.map(article => {
-    const savesCount = article.saves?.[0]?.count || 0;
-    const sharesCount = article.shares?.[0]?.count || 0;
+    const savesCount = Array.isArray(article.saves) ? article.saves.length : 0;
+    const sharesCount = Array.isArray(article.shares) ? article.shares.length : 0;
     
     return {
       ...article,
@@ -110,7 +110,7 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       shares_count: sharesCount,
       trending_score: savesCount + sharesCount
     };
-  });
+  }) || [];
 
   return transformedData as (Article & { 
     category: Category; 
