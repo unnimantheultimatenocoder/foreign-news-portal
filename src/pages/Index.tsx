@@ -19,9 +19,9 @@ const Index = () => {
     gcTime: 30 * 60 * 1000,
   });
 
-  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
-    queryFn: getCategories,
+    queryFn: () => getCategories().then(data => data || []),
     staleTime: 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
   });
@@ -32,9 +32,9 @@ const Index = () => {
     }
   }, [preferences, setPreferences]);
 
-  const { data: articles, isLoading: isArticlesLoading } = useQuery({
+  const { data: articles = [], isLoading: isArticlesLoading } = useQuery({
     queryKey: ['articles', { categories: activeCategories }],
-    queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }),
+    queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }).then(data => data || []),
     staleTime: 2 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   });
@@ -49,7 +49,7 @@ const Index = () => {
     }
   }, []);
 
-  if (isArticlesLoading || isCategoriesLoading) {
+  if (isArticlesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -71,7 +71,7 @@ const Index = () => {
       <CategoryFilter 
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        categories={categories || []}
+        categories={categories}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -82,7 +82,7 @@ const Index = () => {
               animate={{ opacity: 1 }}
               className="grid gap-6 md:grid-cols-2"
             >
-              {articles?.map((article) => (
+              {articles.map((article) => (
                 <NewsCard
                   key={article.id}
                   id={article.id}
