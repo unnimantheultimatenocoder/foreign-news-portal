@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { TrendingArticles } from "@/components/TrendingArticles";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -162,6 +163,15 @@ const Profile = () => {
               />
             </div>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-lg shadow p-6"
+        >
+          <TrendingArticles />
         </motion.div>
       </main>
 

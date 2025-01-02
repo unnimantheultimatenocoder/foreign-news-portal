@@ -80,6 +80,21 @@ export const getArticles = async ({
   return data as (Article & { category: Category })[];
 };
 
+export const getTrendingArticles = async (limit = 5) => {
+  const { data, error } = await supabase
+    .from('articles')
+    .select(`
+      *,
+      category:categories(*),
+      _count:saved_articles(count)
+    `)
+    .order('_count', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data as (Article & { category: Category })[];
+};
+
 export const getArticleById = async (id: string) => {
   const { data, error } = await supabase
     .from('articles')
