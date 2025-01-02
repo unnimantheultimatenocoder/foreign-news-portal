@@ -16,57 +16,70 @@ export const getArticles = async ({
   saved?: boolean;
   preferences?: boolean;
 }) => {
-  let query = supabase
-    .from('articles')
-    .select(`
-      *,
-      category:categories(*)
-    `)
-    .order('published_at', { ascending: false });
+  try {
+    let query = supabase
+      .from('articles')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .order('published_at', { ascending: false });
 
-  if (saved) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: savedArticles } = await supabase
-        .from('saved_articles')
-        .select('article_id')
-        .eq('user_id', user.id);
+    if (saved) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: savedArticles } = await supabase
+          .from('saved_articles')
+          .select('article_id')
+          .eq('user_id', user.id);
 
-      if (savedArticles) {
-        const articleIds = savedArticles.map(sa => sa.article_id);
-        query = query.in('id', articleIds);
+        if (savedArticles) {
+          const articleIds = savedArticles.map(sa => sa.article_id);
+          query = query.in('id', articleIds);
+        }
       }
     }
-  }
 
-  if (preferences) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: userPreferences } = await supabase
-        .from('user_category_preferences')
-        .select('category_id')
-        .eq('user_id', user.id);
+    if (preferences) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: userPreferences } = await supabase
+          .from('user_category_preferences')
+          .select('category_id')
+          .eq('user_id', user.id);
 
-      if (userPreferences && userPreferences.length > 0) {
-        const categoryIds = userPreferences.map(up => up.category_id);
-        query = query.in('category_id', categoryIds);
+        if (userPreferences && userPreferences.length > 0) {
+          const categoryIds = userPreferences.map(up => up.category_id);
+          query = query.in('category_id', categoryIds);
+        }
       }
     }
+
+    if (category) {
+      query = query.eq('category_id', category);
+    }
+
+    if (search) {
+      query = query.ilike('title', `%${search}%`);
+    }
+
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    
+    query = query.range(from, to);
+
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching articles:', error);
+      return [];
+    }
+
+    return data as (Article & { category: Category })[] || [];
+  } catch (error) {
+    console.error('Error in getArticles:', error);
+    return [];
   }
-
-  if (category) {
-    query = query.eq('category_id', category);
-  }
-
-  if (search) {
-    query = query.ilike('title', `%${search}%`);
-  }
-
-  query = query.range((page - 1) * limit, page * limit - 1);
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data as (Article & { category: Category })[];
 };
 
 export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared' = 'trending', limit = 5) => {

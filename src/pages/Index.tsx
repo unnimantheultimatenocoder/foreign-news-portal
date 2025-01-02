@@ -41,19 +41,27 @@ const Index = () => {
     isLoading: isArticlesLoading,
     fetchNextPage,
     hasNextPage,
+    isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ['articles', { categories: activeCategories }],
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await getArticles({
-        category: activeCategories[0],
-        limit: ITEMS_PER_PAGE,
-        page: pageParam,
-      });
-      return result || [];
+      try {
+        const result = await getArticles({
+          category: activeCategories[0],
+          limit: ITEMS_PER_PAGE,
+          page: pageParam,
+        });
+        return result;
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+        return [];
+      }
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage || lastPage.length === 0) return undefined;
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0) {
+        return undefined;
+      }
       return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
     },
     staleTime: 2 * 60 * 1000,
@@ -61,10 +69,10 @@ const Index = () => {
   });
 
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, fetchNextPage]);
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -87,7 +95,7 @@ const Index = () => {
     );
   }
 
-  const articles = data?.pages?.flatMap(page => page) || [];
+  const articles = data?.pages?.flatMap(page => page || []) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -124,7 +132,7 @@ const Index = () => {
                 />
               ))}
             </motion.div>
-            {hasNextPage && (
+            {(hasNextPage || isFetchingNextPage) && (
               <div ref={loadMoreRef} className="flex justify-center mt-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
               </div>
