@@ -30,16 +30,7 @@ const Home = () => {
       limit: ITEMS_PER_PAGE,
     }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
-    },
-  });
-
-  const { data: categoriesData } = useInfiniteQuery({
-    queryKey: ['categories'],
-    queryFn: getCategories,
-    initialPageParam: 1,
-    getNextPageParam: () => undefined, // No pagination for categories
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextPage : undefined,
   });
 
   useEffect(() => {
@@ -75,23 +66,20 @@ const Home = () => {
     );
   }
 
-  const allArticles = (data?.pages.flat() || []) as Article[];
-  const categories = (categoriesData?.pages[0] || []) as Category[];
+  const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-primary">Global News</h1>
-          {categories && (
-            <CategoryFilter
-              selectedCategory={selectedCategory || "All"}
-              onSelectCategory={(category) =>
-                setSelectedCategory(category === "All" ? null : category)
-              }
-              categories={categories}
-            />
-          )}
+          <CategoryFilter
+            selectedCategory={selectedCategory || "All"}
+            onSelectCategory={(category) =>
+              setSelectedCategory(category === "All" ? null : category)
+            }
+            categories={[]}
+          />
         </div>
       </header>
 

@@ -5,9 +5,12 @@ import { BottomNav } from "@/components/BottomNav";
 import { getArticles } from "@/lib/api";
 
 const SavedNews = () => {
-  const { data: savedArticles, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['savedArticles'],
-    queryFn: () => getArticles({ saved: true }),
+    queryFn: async () => {
+      const result = await getArticles({ saved: true });
+      return result.articles;
+    },
   });
 
   if (isLoading) {
@@ -35,7 +38,7 @@ const SavedNews = () => {
           animate={{ opacity: 1 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {savedArticles?.map((article) => (
+          {data?.map((article) => (
             <NewsCard
               key={article.id}
               id={article.id}

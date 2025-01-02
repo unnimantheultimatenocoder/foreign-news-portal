@@ -12,9 +12,12 @@ const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  const { data: articles, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['articles', { search: debouncedQuery }],
-    queryFn: () => getArticles({ search: debouncedQuery }),
+    queryFn: async () => {
+      const result = await getArticles({ search: debouncedQuery });
+      return result.articles;
+    },
     enabled: debouncedQuery.length > 0,
   });
 
@@ -55,7 +58,7 @@ const Search = () => {
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {articles?.map((article) => (
+            {data?.map((article) => (
               <NewsCard
                 key={article.id}
                 id={article.id}
