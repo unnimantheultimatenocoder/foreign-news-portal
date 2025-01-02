@@ -10,6 +10,7 @@ export interface Article {
   published_at: string;
   source: string;
   category?: Category;
+  saves_count?: number;
 }
 
 export interface Category {
@@ -86,13 +87,13 @@ export const getTrendingArticles = async (limit = 5) => {
     .select(`
       *,
       category:categories(*),
-      _count:saved_articles(count)
+      saves_count:saved_articles(count)
     `)
-    .order('_count', { ascending: false })
+    .order('saves_count', { ascending: false })
     .limit(limit);
 
   if (error) throw error;
-  return data as (Article & { category: Category })[];
+  return data as (Article & { category: Category; saves_count: number })[];
 };
 
 export const getArticleById = async (id: string) => {
