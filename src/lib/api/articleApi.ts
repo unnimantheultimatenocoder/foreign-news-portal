@@ -68,17 +68,20 @@ export const getArticles = async ({
     
     query = query.range(from, to);
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
     
     if (error) {
       console.error('Error fetching articles:', error);
-      return [];
+      return { articles: [], hasMore: false };
     }
 
-    return data as (Article & { category: Category })[] || [];
+    return {
+      articles: (data as (Article & { category: Category })[]) || [],
+      hasMore: (data?.length || 0) === limit
+    };
   } catch (error) {
     console.error('Error in getArticles:', error);
-    return [];
+    return { articles: [], hasMore: false };
   }
 };
 

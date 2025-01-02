@@ -51,12 +51,12 @@ const Index = () => {
         page: pageParam,
       });
       return {
-        articles: result,
-        nextPage: result.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+        articles: result.articles,
+        nextPage: result.hasMore ? pageParam + 1 : undefined,
       };
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage?.nextPage,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
     staleTime: 2 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   });
