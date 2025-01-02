@@ -82,18 +82,40 @@ export const getArticles = async ({
 };
 
 export const getTrendingArticles = async (limit = 5) => {
-  const { data, error } = await supabase
+  // First, get the count of saves for each article
+  const { data: saveCounts, error: saveCountError } = await supabase
+    .from('saved_articles')
+    .select('article_id, count', { count: 'exact' })
+    .group_by('article_id');
+
+  if (saveCountError) throw saveCountError;
+
+  // Create a map of article_id to save count
+  const saveCountMap = new Map(
+    saveCounts?.map(item => [item.article_id, parseInt(item.count as string)]) || []
+  );
+
+  // Get articles with their categories
+  const { data: articles, error: articlesError } = await supabase
     .from('articles')
     .select(`
       *,
-      category:categories(*),
-      saves_count:saved_articles(count)
+      category:categories(*)
     `)
-    .order('saves_count', { ascending: false })
     .limit(limit);
 
-  if (error) throw error;
-  return data as (Article & { category: Category; saves_count: number })[];
+  if (articlesError) throw articlesError;
+
+  // Combine the data
+  const articlesWithSaves = articles?.map(article => ({
+    ...article,
+    saves_count: saveCountMap.get(article.id) || 0
+  })) || [];
+
+  // Sort by save count
+  articlesWithSaves.sort((a, b) => (b.saves_count || 0) - (a.saves_count || 0));
+
+  return articlesWithSaves as (Article & { category: Category; saves_count: number })[];
 };
 
 export const getArticleById = async (id: string) => {
