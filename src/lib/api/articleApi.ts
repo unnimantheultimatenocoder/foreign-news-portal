@@ -76,7 +76,7 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       *,
       category:categories(*),
       saves:saved_articles(count),
-      shares:article_shares(count)
+      shares:saved_articles(count)
     `);
 
   switch (type) {
@@ -85,12 +85,12 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       break;
     case 'shared':
       // Get articles with the most shares
-      query = query.order('shares.count', { ascending: false });
+      query = query.order('shares', { ascending: false });
       break;
     case 'trending':
     default:
       // Get articles with the highest combination of saves and shares
-      query = query.order('saves.count', { ascending: false });
+      query = query.order('saves', { ascending: false });
       break;
   }
 
@@ -102,9 +102,10 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
   // Transform the data to match the expected type
   const transformedData = data?.map(article => ({
     ...article,
-    saves_count: article.saves?.[0]?.count || 0,
-    shares_count: article.shares?.[0]?.count || 0,
-    trending_score: (article.saves?.[0]?.count || 0) + (article.shares?.[0]?.count || 0)
+    saves_count: Array.isArray(article.saves) ? article.saves.length : 0,
+    shares_count: Array.isArray(article.shares) ? article.shares.length : 0,
+    trending_score: (Array.isArray(article.saves) ? article.saves.length : 0) + 
+                   (Array.isArray(article.shares) ? article.shares.length : 0)
   }));
 
   return transformedData as (Article & { 
