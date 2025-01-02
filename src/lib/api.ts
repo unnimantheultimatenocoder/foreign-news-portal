@@ -85,15 +85,22 @@ export const getTrendingArticles = async (limit = 5) => {
   // First, get the count of saves for each article
   const { data: saveCounts, error: saveCountError } = await supabase
     .from('saved_articles')
-    .select('article_id, count', { count: 'exact' })
-    .group_by('article_id');
+    .select('article_id, count', {
+      count: 'exact',
+      head: false
+    })
+    .select('article_id');
 
   if (saveCountError) throw saveCountError;
 
   // Create a map of article_id to save count
-  const saveCountMap = new Map(
-    saveCounts?.map(item => [item.article_id, parseInt(item.count as string)]) || []
-  );
+  const saveCountMap = new Map<string, number>();
+  if (saveCounts) {
+    saveCounts.forEach(item => {
+      const currentCount = saveCountMap.get(item.article_id) || 0;
+      saveCountMap.set(item.article_id, currentCount + 1);
+    });
+  }
 
   // Get articles with their categories
   const { data: articles, error: articlesError } = await supabase
@@ -107,13 +114,17 @@ export const getTrendingArticles = async (limit = 5) => {
   if (articlesError) throw articlesError;
 
   // Combine the data
-  const articlesWithSaves = articles?.map(article => ({
+  const articlesWithSaves = (articles || []).map(article => ({
     ...article,
     saves_count: saveCountMap.get(article.id) || 0
-  })) || [];
+  }));
 
   // Sort by save count
-  articlesWithSaves.sort((a, b) => (b.saves_count || 0) - (a.saves_count || 0));
+  articlesWithSaves.sort((a, b) => {
+    const countA = typeof a.saves_count === 'number' ? a.saves_count : 0;
+    const countB = typeof b.saves_count === 'number' ? b.saves_count : 0;
+    return countB - countA;
+  });
 
   return articlesWithSaves as (Article & { category: Category; saves_count: number })[];
 };
