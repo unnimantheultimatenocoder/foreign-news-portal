@@ -7,12 +7,14 @@ export const getArticles = async ({
   category,
   search,
   saved,
+  preferences = false,
 }: {
   page?: number;
   limit?: number;
   category?: string;
   search?: string;
   saved?: boolean;
+  preferences?: boolean;
 }) => {
   let query = supabase
     .from('articles')
@@ -37,6 +39,21 @@ export const getArticles = async ({
     }
   }
 
+  if (preferences) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: userPreferences } = await supabase
+        .from('user_category_preferences')
+        .select('category_id')
+        .eq('user_id', user.id);
+
+      if (userPreferences && userPreferences.length > 0) {
+        const categoryIds = userPreferences.map(up => up.category_id);
+        query = query.in('category_id', categoryIds);
+      }
+    }
+  }
+
   if (category) {
     query = query.eq('category_id', category);
   }
@@ -52,52 +69,49 @@ export const getArticles = async ({
   return data as (Article & { category: Category })[];
 };
 
-export const getTrendingArticles = async (limit = 5) => {
-  // First, get the count of saves for each article
-  const { data: saveCounts, error: saveCountError } = await supabase
-    .from('saved_articles')
-    .select('article_id, count', {
-      count: 'exact',
-      head: false
-    })
-    .select('article_id');
-
-  if (saveCountError) throw saveCountError;
-
-  // Create a map of article_id to save count
-  const saveCountMap = new Map<string, number>();
-  if (saveCounts) {
-    saveCounts.forEach(item => {
-      const currentCount = saveCountMap.get(item.article_id) || 0;
-      saveCountMap.set(item.article_id, currentCount + 1);
-    });
-  }
-
-  // Get articles with their categories
-  const { data: articles, error: articlesError } = await supabase
+export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared' = 'trending', limit = 5) => {
+  let query = supabase
     .from('articles')
     .select(`
       *,
-      category:categories(*)
-    `)
-    .limit(limit);
+      category:categories(*),
+      saves_count:saved_articles(count),
+      shares_count:article_shares(count)
+    `);
 
-  if (articlesError) throw articlesError;
+  switch (type) {
+    case 'editors':
+      query = query.eq('is_editors_pick', true);
+      break;
+    case 'shared':
+      query = query.order('shares_count', { ascending: false });
+      break;
+    case 'trending':
+    default:
+      // Combine saves and shares for trending score
+      const { data: metrics } = await supabase
+        .from('article_metrics')
+        .select('*')
+        .order('trending_score', { ascending: false });
+      
+      if (metrics && metrics.length > 0) {
+        const articleIds = metrics.map(m => m.article_id);
+        query = query.in('id', articleIds);
+      }
+      break;
+  }
 
-  // Combine the data
-  const articlesWithSaves = (articles || []).map(article => ({
-    ...article,
-    saves_count: saveCountMap.get(article.id) || 0
-  }));
+  query = query.limit(limit);
 
-  // Sort by save count
-  articlesWithSaves.sort((a, b) => {
-    const countA = typeof a.saves_count === 'number' ? a.saves_count : 0;
-    const countB = typeof b.saves_count === 'number' ? b.saves_count : 0;
-    return countB - countA;
-  });
+  const { data, error } = await query;
+  if (error) throw error;
 
-  return articlesWithSaves as (Article & { category: Category; saves_count: number })[];
+  return data as (Article & { 
+    category: Category; 
+    saves_count: number;
+    shares_count: number;
+    trending_score?: number;
+  })[];
 };
 
 export const getArticleById = async (id: string) => {
@@ -114,11 +128,19 @@ export const getArticleById = async (id: string) => {
   return data as Article & { category: Category };
 };
 
-export const saveArticle = async (articleId: string) => {
+export const getSimilarArticles = async (articleId: string, limit = 3) => {
+  const article = await getArticleById(articleId);
+  
   const { data, error } = await supabase
-    .from('saved_articles')
-    .insert([{ article_id: articleId }]);
+    .from('articles')
+    .select(`
+      *,
+      category:categories(*)
+    `)
+    .eq('category_id', article.category_id)
+    .neq('id', articleId)
+    .limit(limit);
 
   if (error) throw error;
-  return data;
+  return data as (Article & { category: Category })[];
 };

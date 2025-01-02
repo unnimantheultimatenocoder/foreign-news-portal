@@ -1,10 +1,16 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Bookmark, Clock } from "lucide-react";
+import { ArrowUpRight, Bookmark, Clock, Share2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { calculateReadingTime } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NewsCardProps {
   id: string;
@@ -108,6 +114,41 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
     }
   };
 
+  const handleShare = async (platform: 'twitter' | 'facebook' | 'linkedin' | 'email' | 'copy') => {
+    const shareText = `Check out this article: ${title}`;
+    const shareUrl = url;
+
+    try {
+      switch (platform) {
+        case 'twitter':
+          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+          break;
+        case 'facebook':
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+          break;
+        case 'linkedin':
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank');
+          break;
+        case 'email':
+          window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`;
+          break;
+        case 'copy':
+          await navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Success",
+            description: "Link copied to clipboard",
+          });
+          break;
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to share article",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -115,14 +156,40 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
       className="w-full"
     >
       <Card className="overflow-hidden cursor-pointer group relative">
-        <button
-          onClick={handleSave}
-          className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-        >
-          <Bookmark
-            className={`w-4 h-4 ${isSaved ? 'fill-current text-accent' : 'text-gray-500'}`}
-          />
-        </button>
+        <div className="absolute top-4 right-4 z-10 flex gap-2">
+          <button
+            onClick={handleSave}
+            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+          >
+            <Bookmark
+              className={`w-4 h-4 ${isSaved ? 'fill-current text-accent' : 'text-gray-500'}`}
+            />
+          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                <Share2 className="w-4 h-4 text-gray-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleShare('twitter')}>
+                Share on Twitter
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleShare('facebook')}>
+                Share on Facebook
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleShare('linkedin')}>
+                Share on LinkedIn
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleShare('email')}>
+                Share via Email
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleShare('copy')}>
+                Copy Link
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
           <div className="relative h-48 overflow-hidden" data-image-url={imageUrl}>
             {isIntersecting && (
