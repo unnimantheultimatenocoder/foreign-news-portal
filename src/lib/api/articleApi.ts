@@ -75,32 +75,16 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
     .select(`
       *,
       category:categories(*),
-      saves:saved_articles(count),
-      shares:saved_articles(count)
+      saves:saved_articles(id),
+      shares:saved_articles(id)
     `);
 
-  switch (type) {
-    case 'editors':
-      query = query.eq('is_editors_pick', true);
-      break;
-    case 'shared':
-      // Get articles with the most saves (since we don't track shares separately)
-      query = query.order('saves', { foreignTable: 'saved_articles', ascending: false });
-      break;
-    case 'trending':
-    default:
-      // Get articles with the highest number of saves
-      query = query.order('saves', { foreignTable: 'saved_articles', ascending: false });
-      break;
-  }
-
-  query = query.limit(limit);
-
-  const { data, error } = await query;
+  // First get the data without ordering to calculate trending scores
+  const { data: rawData, error } = await query;
   if (error) throw error;
 
-  // Transform the data to match the expected type
-  const transformedData = data?.map(article => {
+  // Calculate trending scores and sort the data in memory
+  const articlesWithScores = rawData?.map(article => {
     const savesCount = Array.isArray(article.saves) ? article.saves.length : 0;
     const sharesCount = Array.isArray(article.shares) ? article.shares.length : 0;
     
@@ -112,7 +96,25 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
     };
   }) || [];
 
-  return transformedData as (Article & { 
+  // Sort the data based on the type
+  let sortedData = [...articlesWithScores];
+  switch (type) {
+    case 'editors':
+      // For editors' picks, we would need to add an is_editors_pick column
+      // For now, just return the most saved articles
+      sortedData.sort((a, b) => b.saves_count - a.saves_count);
+      break;
+    case 'shared':
+      sortedData.sort((a, b) => b.shares_count - a.shares_count);
+      break;
+    case 'trending':
+    default:
+      sortedData.sort((a, b) => b.trending_score - a.trending_score);
+      break;
+  }
+
+  // Return only the requested number of articles
+  return sortedData.slice(0, limit) as (Article & { 
     category: Category; 
     saves_count: number;
     shares_count: number;
