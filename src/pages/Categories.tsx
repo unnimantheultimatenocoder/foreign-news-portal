@@ -37,7 +37,7 @@ const Categories = () => {
           animate={{ opacity: 1 }}
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
-          {categories?.map((category) => (
+          {Array.isArray(categories) && categories.map((category) => (
             <Card
               key={category.id}
               className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
