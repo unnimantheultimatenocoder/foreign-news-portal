@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getArticles, getUserPreferences, getCategories } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
@@ -7,10 +7,14 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { BottomNav } from "@/components/BottomNav";
 import { AIChat } from "@/components/AIChat";
 import { useAppStore } from "@/stores/useAppStore";
+import { useInView } from "react-intersection-observer";
+
+const ITEMS_PER_PAGE = 20;
 
 const Index = () => {
   const { activeCategories, setPreferences } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const { ref: loadMoreRef, inView } = useInView();
 
   const { data: preferences } = useQuery({
     queryKey: ['userPreferences'],
@@ -32,12 +36,31 @@ const Index = () => {
     }
   }, [preferences, setPreferences]);
 
-  const { data: articles = [], isLoading: isArticlesLoading } = useQuery({
+  const {
+    data,
+    isLoading: isArticlesLoading,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
     queryKey: ['articles', { categories: activeCategories }],
-    queryFn: () => getArticles({ category: activeCategories[0], limit: 20 }).then(data => data || []),
+    queryFn: ({ pageParam = 1 }) => getArticles({
+      category: activeCategories[0],
+      limit: ITEMS_PER_PAGE,
+      page: pageParam,
+    }).then(data => data || []),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
+    },
     staleTime: 2 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -59,6 +82,8 @@ const Index = () => {
       </div>
     );
   }
+
+  const articles = data?.pages.flatMap(page => page) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -95,6 +120,11 @@ const Index = () => {
                 />
               ))}
             </motion.div>
+            {hasNextPage && (
+              <div ref={loadMoreRef} className="flex justify-center mt-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+              </div>
+            )}
           </div>
           <div className="lg:col-span-1">
             <AIChat />
