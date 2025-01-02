@@ -5,7 +5,7 @@ import PullToRefresh from "react-pull-to-refresh";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { getArticles, getCategories } from "@/lib/api";
+import { getArticles, getCategories, type Article, type Category } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useInView } from "react-intersection-observer";
 
@@ -24,20 +24,22 @@ const Home = () => {
     refetch,
   } = useInfiniteQuery({
     queryKey: ['articles', { category: selectedCategory }],
-    queryFn: ({ pageParam = 1 }) => 
-      getArticles({ 
-        category: selectedCategory || undefined,
-        page: pageParam,
-        limit: ITEMS_PER_PAGE 
-      }),
+    queryFn: ({ pageParam }) => getArticles({
+      category: selectedCategory || undefined,
+      page: pageParam as number,
+      limit: ITEMS_PER_PAGE,
+    }),
+    initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
     },
   });
 
-  const { data: categories } = useInfiniteQuery({
+  const { data: categoriesData } = useInfiniteQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
+    initialPageParam: 1,
+    getNextPageParam: () => undefined, // No pagination for categories
   });
 
   useEffect(() => {
@@ -66,14 +68,15 @@ const Home = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto" />
           <p className="mt-4 text-secondary">Loading articles...</p>
         </div>
       </div>
     );
   }
 
-  const allArticles = data?.pages.flat() || [];
+  const allArticles = (data?.pages.flat() || []) as Article[];
+  const categories = (categoriesData?.pages[0] || []) as Category[];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -83,7 +86,9 @@ const Home = () => {
           {categories && (
             <CategoryFilter
               selectedCategory={selectedCategory || "All"}
-              onSelectCategory={(category) => setSelectedCategory(category === "All" ? null : category)}
+              onSelectCategory={(category) =>
+                setSelectedCategory(category === "All" ? null : category)
+              }
               categories={categories}
             />
           )}
@@ -112,7 +117,7 @@ const Home = () => {
           </motion.div>
           {hasNextPage && (
             <div ref={loadMoreRef} className="flex justify-center mt-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
             </div>
           )}
         </PullToRefresh>
