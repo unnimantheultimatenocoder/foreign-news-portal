@@ -9,6 +9,8 @@ export interface Article {
   source: string;
   category?: Category;
   saves_count?: number;
+  shares_count?: number;
+  trending_score?: number;
 }
 
 export interface Category {

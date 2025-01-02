@@ -75,8 +75,8 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
     .select(`
       *,
       category:categories(*),
-      saves_count:saved_articles(count),
-      shares_count:article_shares(count)
+      saves:saved_articles(count),
+      shares:article_shares(count)
     `);
 
   switch (type) {
@@ -84,20 +84,13 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       query = query.eq('is_editors_pick', true);
       break;
     case 'shared':
-      query = query.order('shares_count', { ascending: false });
+      // Get articles with the most shares
+      query = query.order('shares.count', { ascending: false });
       break;
     case 'trending':
     default:
-      // Combine saves and shares for trending score
-      const { data: metrics } = await supabase
-        .from('article_metrics')
-        .select('*')
-        .order('trending_score', { ascending: false });
-      
-      if (metrics && metrics.length > 0) {
-        const articleIds = metrics.map(m => m.article_id);
-        query = query.in('id', articleIds);
-      }
+      // Get articles with the highest combination of saves and shares
+      query = query.order('saves.count', { ascending: false });
       break;
   }
 
@@ -106,11 +99,19 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
   const { data, error } = await query;
   if (error) throw error;
 
-  return data as (Article & { 
+  // Transform the data to match the expected type
+  const transformedData = data?.map(article => ({
+    ...article,
+    saves_count: article.saves?.[0]?.count || 0,
+    shares_count: article.shares?.[0]?.count || 0,
+    trending_score: (article.saves?.[0]?.count || 0) + (article.shares?.[0]?.count || 0)
+  }));
+
+  return transformedData as (Article & { 
     category: Category; 
     saves_count: number;
     shares_count: number;
-    trending_score?: number;
+    trending_score: number;
   })[];
 };
 
