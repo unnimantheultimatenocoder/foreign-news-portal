@@ -72,16 +72,17 @@ export const getArticles = async ({
     
     if (error) {
       console.error('Error fetching articles:', error);
-      return { articles: [], hasMore: false };
+      return { articles: [], hasMore: false, nextPage: undefined };
     }
 
     return {
       articles: (data as (Article & { category: Category })[]) || [],
-      hasMore: (data?.length || 0) === limit
+      hasMore: (data?.length || 0) === limit,
+      nextPage: (data?.length || 0) === limit ? page + 1 : undefined
     };
   } catch (error) {
     console.error('Error in getArticles:', error);
-    return { articles: [], hasMore: false };
+    return { articles: [], hasMore: false, nextPage: undefined };
   }
 };
 

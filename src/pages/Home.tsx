@@ -5,7 +5,7 @@ import PullToRefresh from "react-pull-to-refresh";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { getArticles, getCategories, type Article, type Category } from "@/lib/api";
+import { getArticles, type Article, type Category } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useInView } from "react-intersection-observer";
 
@@ -24,13 +24,13 @@ const Home = () => {
     refetch,
   } = useInfiniteQuery({
     queryKey: ['articles', { category: selectedCategory }],
-    queryFn: ({ pageParam }) => getArticles({
+    queryFn: ({ pageParam = 1 }) => getArticles({
       category: selectedCategory || undefined,
-      page: pageParam as number,
+      page: pageParam,
       limit: ITEMS_PER_PAGE,
     }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextPage : undefined,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
   useEffect(() => {
