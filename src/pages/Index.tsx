@@ -43,13 +43,17 @@ const Index = () => {
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ['articles', { categories: activeCategories }],
-    queryFn: ({ pageParam = 1 }) => getArticles({
-      category: activeCategories[0],
-      limit: ITEMS_PER_PAGE,
-      page: pageParam,
-    }).then(data => data || []),
+    queryFn: async ({ pageParam = 1 }) => {
+      const result = await getArticles({
+        category: activeCategories[0],
+        limit: ITEMS_PER_PAGE,
+        page: pageParam,
+      });
+      return result || [];
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length === 0) return undefined;
       return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
     },
     staleTime: 2 * 60 * 1000,
@@ -83,7 +87,7 @@ const Index = () => {
     );
   }
 
-  const articles = data?.pages.flatMap(page => page) || [];
+  const articles = data?.pages?.flatMap(page => page) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
