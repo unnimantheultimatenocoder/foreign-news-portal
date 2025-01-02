@@ -100,13 +100,17 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
   if (error) throw error;
 
   // Transform the data to match the expected type
-  const transformedData = data?.map(article => ({
-    ...article,
-    saves_count: Array.isArray(article.saves) ? article.saves.length : 0,
-    shares_count: Array.isArray(article.shares) ? article.shares.length : 0,
-    trending_score: (Array.isArray(article.saves) ? article.saves.length : 0) + 
-                   (Array.isArray(article.shares) ? article.shares.length : 0)
-  }));
+  const transformedData = data?.map(article => {
+    const savesCount = typeof article.saves === 'number' ? article.saves : 0;
+    const sharesCount = typeof article.shares === 'number' ? article.shares : 0;
+    
+    return {
+      ...article,
+      saves_count: savesCount,
+      shares_count: sharesCount,
+      trending_score: savesCount + sharesCount
+    };
+  });
 
   return transformedData as (Article & { 
     category: Category; 
