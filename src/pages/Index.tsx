@@ -45,25 +45,18 @@ const Index = () => {
   } = useInfiniteQuery({
     queryKey: ['articles', { categories: activeCategories }],
     queryFn: async ({ pageParam = 1 }) => {
-      try {
-        const result = await getArticles({
-          category: activeCategories[0],
-          limit: ITEMS_PER_PAGE,
-          page: pageParam,
-        });
-        return result;
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-        return [];
-      }
+      const result = await getArticles({
+        category: activeCategories[0],
+        limit: ITEMS_PER_PAGE,
+        page: pageParam,
+      });
+      return {
+        articles: result,
+        nextPage: result.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+      };
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0) {
-        return undefined;
-      }
-      return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
-    },
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
     staleTime: 2 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   });
@@ -95,7 +88,7 @@ const Index = () => {
     );
   }
 
-  const articles = data?.pages?.flatMap(page => page || []) || [];
+  const articles = data?.pages?.flatMap(page => page?.articles || []) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
