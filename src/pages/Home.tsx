@@ -1,25 +1,66 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import PullToRefresh from "react-pull-to-refresh";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { getArticles, getCategories } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useInView } from "react-intersection-observer";
+
+const ITEMS_PER_PAGE = 10;
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { toast } = useToast();
+  const { ref: loadMoreRef, inView } = useInView();
 
-  const { data: articles, isLoading: articlesLoading } = useQuery({
+  const {
+    data,
+    isLoading: articlesLoading,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
     queryKey: ['articles', { category: selectedCategory }],
-    queryFn: () => getArticles({ category: selectedCategory || undefined }),
+    queryFn: ({ pageParam = 1 }) => 
+      getArticles({ 
+        category: selectedCategory || undefined,
+        page: pageParam,
+        limit: ITEMS_PER_PAGE 
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === ITEMS_PER_PAGE ? allPages.length + 1 : undefined;
+    },
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories } = useInfiniteQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      toast({
+        title: "Refreshed",
+        description: "Latest articles loaded",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh articles",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (articlesLoading) {
     return (
@@ -31,6 +72,8 @@ const Home = () => {
       </div>
     );
   }
+
+  const allArticles = data?.pages.flat() || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -48,24 +91,31 @@ const Home = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {articles?.map((article) => (
-            <NewsCard
-              key={article.id}
-              id={article.id}
-              title={article.title}
-              summary={article.summary}
-              imageUrl={article.image_url || "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"}
-              category={article.category?.name || "Uncategorized"}
-              date={new Date(article.published_at).toLocaleDateString()}
-              url={article.original_url}
-            />
-          ))}
-        </motion.div>
+        <PullToRefresh onRefresh={handleRefresh}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {allArticles.map((article) => (
+              <NewsCard
+                key={article.id}
+                id={article.id}
+                title={article.title}
+                summary={article.summary}
+                imageUrl={article.image_url || "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"}
+                category={article.category?.name || "Uncategorized"}
+                date={new Date(article.published_at).toLocaleDateString()}
+                url={article.original_url}
+              />
+            ))}
+          </motion.div>
+          {hasNextPage && (
+            <div ref={loadMoreRef} className="flex justify-center mt-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+          )}
+        </PullToRefresh>
       </main>
 
       <BottomNav />

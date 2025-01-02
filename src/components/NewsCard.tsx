@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Bookmark } from "lucide-react";
+import { ArrowUpRight, Bookmark, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { calculateReadingTime } from "@/lib/utils";
 
 interface NewsCardProps {
   id: string;
@@ -20,6 +21,7 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const { toast } = useToast();
+  const readingTime = calculateReadingTime(summary);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -146,7 +148,13 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
           </div>
           <div className="p-5">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-sm text-secondary">{date}</span>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-secondary">{date}</span>
+                <div className="flex items-center text-secondary">
+                  <Clock className="w-4 h-4 mr-1" />
+                  <span className="text-sm">{readingTime} min read</span>
+                </div>
+              </div>
               <ArrowUpRight className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <h3 className="text-xl font-semibold text-primary mb-2 line-clamp-2 group-hover:text-accent transition-colors">
