@@ -15,6 +15,7 @@ const AdminRoute = () => {
         .eq('id', user.id)
         .single();
 
+      console.log("Admin route check:", { user, profile }); // Debug log
       return profile?.role === 'admin';
     }
   });
@@ -24,6 +25,7 @@ const AdminRoute = () => {
   }
 
   if (!isAdmin) {
+    console.log("Access denied: User is not admin"); // Debug log
     return <Navigate to="/" />;
   }
 
