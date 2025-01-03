@@ -5,6 +5,7 @@ import { getArticles, getUserPreferences, getCategories } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { BottomNav } from "@/components/BottomNav";
+import { TopNav } from "@/components/TopNav";
 import { AIChat } from "@/components/AIChat";
 import { useAppStore } from "@/stores/useAppStore";
 import { useInView } from "react-intersection-observer";
@@ -91,13 +92,9 @@ const Index = () => {
   const articles = data?.pages?.flatMap(page => page?.articles || []) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-primary">News Feed</h1>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gray-50 pb-20 pt-16">
+      <TopNav />
+      
       <CategoryFilter 
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}

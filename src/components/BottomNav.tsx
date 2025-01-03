@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { Home, Search, BookmarkIcon, User, Settings } from "lucide-react";
+import { Home, BookmarkIcon, User, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 export const BottomNav = () => {
-  const { data: isAdmin, isLoading } = useQuery({
+  const { data: isAdmin } = useQuery({
     queryKey: ['admin-check'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -17,20 +17,30 @@ export const BottomNav = () => {
         .eq('id', user.id)
         .single();
 
-      console.log("Admin check profile:", profile); // Debug log
       return profile?.role === 'admin';
     }
   });
 
-  const NavLink = ({ to, icon: Icon, label }) => (
+  const NavLink = ({ to, icon: Icon, label, isActive = false }) => (
     <motion.div
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       transition={{ duration: 0.2 }}
+      className="relative"
     >
-      <Link to={to} className="flex flex-col items-center text-gray-600 hover:text-primary">
+      <Link 
+        to={to} 
+        className={`flex flex-col items-center ${
+          isActive ? 'text-blue-500' : 'text-gray-500'
+        } hover:text-blue-500 transition-colors`}
+      >
         <Icon className="h-6 w-6" />
-        <span className="text-xs mt-1">{label}</span>
+        {isActive && (
+          <motion.div
+            layoutId="activeIndicator"
+            className="absolute -bottom-2 w-1 h-1 bg-blue-500 rounded-full"
+          />
+        )}
       </Link>
     </motion.div>
   );
@@ -39,13 +49,11 @@ export const BottomNav = () => {
     <motion.nav 
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 flex justify-around items-center z-50"
+      className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md py-4 px-8 flex justify-around items-center z-50"
     >
-      <NavLink to="/" icon={Home} label="Home" />
-      <NavLink to="/search" icon={Search} label="Search" />
+      <NavLink to="/" icon={Home} label="Home" isActive={true} />
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
       <NavLink to="/profile" icon={User} label="Profile" />
-
       {isAdmin && (
         <NavLink to="/admin" icon={Settings} label="Admin" />
       )}
