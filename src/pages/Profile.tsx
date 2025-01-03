@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { TrendingArticles } from "@/components/TrendingArticles";
 
@@ -67,6 +68,8 @@ const Profile = () => {
     mutation.mutate(newSettings);
   };
 
+  const navigate = useNavigate();
+
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -74,6 +77,7 @@ const Profile = () => {
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
+      navigate("/auth");
     } catch (error) {
       toast({
         title: "Error",
