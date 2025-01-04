@@ -18,6 +18,15 @@ export class AppError extends Error {
 export const handleApiError = (error: unknown): ApiError => {
   console.error('API Error:', error);
 
+  // Handle URL-related errors
+  if (error instanceof TypeError && error.message.includes('URL')) {
+    return {
+      code: 'INVALID_URL',
+      message: 'Invalid URL format',
+      details: { originalError: error.message },
+    };
+  }
+
   if (error instanceof AppError) {
     return {
       code: error.code,
