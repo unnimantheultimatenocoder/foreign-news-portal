@@ -1,5 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Article, Category } from "./types";
+import { AppError } from "../errors";
+
+const sanitizeUrl = (url: string): string => {
+  // Remove any trailing colons and ensure proper URL format
+  return url.replace(/:\/\/+/g, '://').replace(/:\//g, '/').replace(/([^:])\/+/g, '$1/');
+};
 
 export const getArticles = async ({
   page = 1,
@@ -71,18 +77,24 @@ export const getArticles = async ({
     const { data, error, count } = await query;
     
     if (error) {
-      console.error('Error fetching articles:', error);
-      return { articles: [], hasMore: false, nextPage: undefined };
+      throw new AppError('Error fetching articles', 'FETCH_ERROR', { supabaseError: error });
     }
 
+    // Process and sanitize URLs in the response
+    const processedData = data?.map(article => ({
+      ...article,
+      original_url: article.original_url ? sanitizeUrl(article.original_url) : null,
+      image_url: article.image_url ? sanitizeUrl(article.image_url) : null,
+    }));
+
     return {
-      articles: (data as (Article & { category: Category })[]) || [],
+      articles: (processedData as (Article & { category: Category })[]) || [],
       hasMore: (data?.length || 0) === limit,
       nextPage: (data?.length || 0) === limit ? page + 1 : undefined
     };
   } catch (error) {
     console.error('Error in getArticles:', error);
-    return { articles: [], hasMore: false, nextPage: undefined };
+    throw error; // Let the error handler deal with it
   }
 };
 

@@ -22,8 +22,18 @@ export const handleApiError = (error: unknown): ApiError => {
   if (error instanceof TypeError && error.message.includes('URL')) {
     return {
       code: 'INVALID_URL',
-      message: 'Invalid URL format',
+      message: 'Invalid URL format or network error',
       details: { originalError: error.message },
+    };
+  }
+
+  // Handle HTTP client errors (like 404)
+  if (error && typeof error === 'object' && 'error_type' in error) {
+    const clientError = error as { message: string; error_type: string };
+    return {
+      code: clientError.error_type.toUpperCase(),
+      message: clientError.message,
+      details: { originalError: error },
     };
   }
 
