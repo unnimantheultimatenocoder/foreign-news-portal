@@ -31,14 +31,14 @@ export const BottomNav = () => {
       <Link 
         to={to} 
         className={`flex flex-col items-center ${
-          isActive ? 'text-blue-500' : 'text-gray-500'
-        } hover:text-blue-500 transition-colors`}
+          isActive ? 'text-primary' : 'text-muted-foreground'
+        } hover:text-primary transition-colors`}
       >
         <Icon className="h-6 w-6" />
         {isActive && (
           <motion.div
             layoutId="activeIndicator"
-            className="absolute -bottom-2 w-1 h-1 bg-blue-500 rounded-full"
+            className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full"
           />
         )}
       </Link>
@@ -49,7 +49,7 @@ export const BottomNav = () => {
     <motion.nav 
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md py-4 px-8 flex justify-around items-center z-50"
+      className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border py-4 px-8 flex justify-around items-center z-50"
     >
       <NavLink to="/" icon={Home} label="Home" isActive={true} />
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
