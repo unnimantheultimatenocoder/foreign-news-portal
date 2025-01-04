@@ -46,37 +46,65 @@ export const NotificationPreferences = () => {
     mutation.mutate(newSettings);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.4,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
       className="bg-card rounded-lg shadow-lg p-6 border border-border/50"
     >
-      <h2 className="text-xl font-semibold text-primary mb-6">Notification Preferences</h2>
+      <motion.h2 
+        variants={itemVariants}
+        className="text-xl font-semibold text-black dark:text-white mb-6"
+      >
+        Notification Preferences
+      </motion.h2>
       
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <motion.div 
+          variants={itemVariants}
+          className="flex items-center justify-between"
+        >
           <div>
-            <h3 className="text-lg font-medium text-foreground">Email Notifications</h3>
-            <p className="text-muted-foreground text-sm">Receive news updates via email</p>
+            <h3 className="text-lg font-medium text-black dark:text-white">Email Notifications</h3>
+            <p className="text-sm text-black/70 dark:text-white/70">Receive news updates via email</p>
           </div>
           <Switch
             checked={preferences?.notification_settings.email}
             onCheckedChange={() => handleNotificationToggle('email')}
           />
-        </div>
+        </motion.div>
 
-        <div className="flex items-center justify-between">
+        <motion.div 
+          variants={itemVariants}
+          className="flex items-center justify-between"
+        >
           <div>
-            <h3 className="text-lg font-medium text-foreground">Push Notifications</h3>
-            <p className="text-muted-foreground text-sm">Get instant updates on your device</p>
+            <h3 className="text-lg font-medium text-black dark:text-white">Push Notifications</h3>
+            <p className="text-sm text-black/70 dark:text-white/70">Get instant updates on your device</p>
           </div>
           <Switch
             checked={preferences?.notification_settings.push}
             onCheckedChange={() => handleNotificationToggle('push')}
           />
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

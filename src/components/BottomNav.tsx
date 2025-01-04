@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, BookmarkIcon, User, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 export const BottomNav = () => {
+  const location = useLocation();
   const { data: isAdmin } = useQuery({
     queryKey: ['admin-check'],
     queryFn: async () => {
@@ -21,29 +22,36 @@ export const BottomNav = () => {
     }
   });
 
-  const NavLink = ({ to, icon: Icon, label, isActive = false }) => (
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className="relative"
-    >
-      <Link 
-        to={to} 
-        className={`flex flex-col items-center ${
-          isActive ? 'text-primary' : 'text-muted-foreground'
-        } hover:text-primary transition-colors`}
+  const NavLink = ({ to, icon: Icon, label }) => {
+    const isActive = location.pathname === to;
+    
+    return (
+      <motion.div
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="relative"
       >
-        <Icon className="h-6 w-6" />
-        {isActive && (
-          <motion.div
-            layoutId="activeIndicator"
-            className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full"
-          />
-        )}
-      </Link>
-    </motion.div>
-  );
+        <Link 
+          to={to} 
+          className={`flex flex-col items-center ${
+            isActive ? 'text-primary' : 'text-black dark:text-white'
+          } hover:text-primary transition-colors`}
+        >
+          <Icon className="h-6 w-6" />
+          {isActive && (
+            <motion.div
+              layoutId="activeIndicator"
+              className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+            />
+          )}
+        </Link>
+      </motion.div>
+    );
+  };
 
   return (
     <motion.nav 
@@ -51,7 +59,7 @@ export const BottomNav = () => {
       animate={{ y: 0 }}
       className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border py-4 px-8 flex justify-around items-center z-50"
     >
-      <NavLink to="/" icon={Home} label="Home" isActive={true} />
+      <NavLink to="/" icon={Home} label="Home" />
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
       <NavLink to="/profile" icon={User} label="Profile" />
       {isAdmin && (

@@ -42,12 +42,24 @@ export const AccountInfo = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
       className="bg-card rounded-lg shadow-lg p-6 border border-border/50"
     >
-      <h2 className="text-xl font-semibold text-primary mb-4">Account Information</h2>
+      <motion.h2 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-xl font-semibold text-black dark:text-white mb-4"
+      >
+        Account Information
+      </motion.h2>
       <div className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-foreground">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <label htmlFor="email" className="block text-sm font-medium text-black dark:text-white">
             Email
           </label>
           <Input
@@ -55,16 +67,22 @@ export const AccountInfo = () => {
             type="email"
             value={email}
             disabled
-            className="mt-1"
+            className="mt-1 text-black dark:text-white"
           />
-        </div>
-        <Button
-          variant="destructive"
-          onClick={handleSignOut}
-          className="w-full sm:w-auto"
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
         >
-          Sign Out
-        </Button>
+          <Button
+            variant="destructive"
+            onClick={handleSignOut}
+            className="w-full sm:w-auto hover:bg-destructive/90 transition-colors"
+          >
+            Sign Out
+          </Button>
+        </motion.div>
       </div>
     </motion.div>
   );
