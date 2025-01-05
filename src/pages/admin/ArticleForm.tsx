@@ -55,22 +55,14 @@ export default function ArticleForm() {
     queryFn: async () => {
       if (!id) return null;
       
-      try {
-        const { data, error } = await supabase
-          .from('articles')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error fetching article:', error);
-          throw error;
-        }
-        return data;
-      } catch (error) {
-        console.error('Error in queryFn:', error);
-        throw error;
-      }
+      const { data, error } = await supabase
+        .from('articles')
+        .select()
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
     enabled: Boolean(id),
   });
@@ -97,7 +89,7 @@ export default function ArticleForm() {
           .update(data)
           .eq('id', id)
           .select()
-          .maybeSingle();
+          .single();
 
         if (error) throw error;
         return result;
@@ -106,7 +98,7 @@ export default function ArticleForm() {
           .from('articles')
           .insert([data])
           .select()
-          .maybeSingle();
+          .single();
 
         if (error) throw error;
         return result;
