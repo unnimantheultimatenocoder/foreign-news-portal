@@ -19,7 +19,7 @@ interface ArticleFormData {
 }
 
 export default function ArticleForm() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -50,7 +50,7 @@ export default function ArticleForm() {
     }
   });
 
-  const { data: article, isLoading } = useQuery({
+  const { data: article } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
       if (!id) return null;
@@ -59,7 +59,7 @@ export default function ArticleForm() {
         .from('articles')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -83,13 +83,13 @@ export default function ArticleForm() {
 
   const mutation = useMutation({
     mutationFn: async (data: ArticleFormData) => {
-      if (isEditing) {
+      if (isEditing && id) {
         const { data: result, error } = await supabase
           .from('articles')
           .update(data)
           .eq('id', id)
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
@@ -98,7 +98,7 @@ export default function ArticleForm() {
           .from('articles')
           .insert([data])
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
@@ -124,10 +124,6 @@ export default function ArticleForm() {
   const onSubmit = (data: ArticleFormData) => {
     mutation.mutate(data);
   };
-
-  if (isEditing && isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="container mx-auto p-6">
