@@ -8,6 +8,10 @@ import Categories from "./pages/Categories";
 import ArticleForm from "./pages/admin/ArticleForm";
 import Articles from "./pages/admin/Articles";
 import Dashboard from "./pages/admin/Dashboard";
+import Users from "./pages/admin/Users";
+import Tags from "./pages/admin/Tags";
+import Sources from "./pages/admin/Sources";
+import Settings from "./pages/admin/Settings";
 import AdminRoute from "./components/AdminRoute";
 
 export default function Routes() {
@@ -26,6 +30,10 @@ export default function Routes() {
         <Route path="articles" element={<Articles />} />
         <Route path="articles/new" element={<ArticleForm />} />
         <Route path="articles/:id/edit" element={<ArticleForm />} />
+        <Route path="users" element={<Users />} />
+        <Route path="tags" element={<Tags />} />
+        <Route path="sources" element={<Sources />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
     </RouterRoutes>
   );
