@@ -11,8 +11,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 
 export default function AdminArticles() {
   const [search, setSearch] = useState("");
@@ -75,8 +87,37 @@ export default function AdminArticles() {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (articleId: string) => {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', articleId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      toast({
+        title: "Success",
+        description: "Article deleted successfully"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete article: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+
   const handlePublish = async (articleId: string) => {
     publishMutation.mutate(articleId);
+  };
+
+  const handleDelete = async (articleId: string) => {
+    deleteMutation.mutate(articleId);
   };
 
   return (
@@ -140,6 +181,33 @@ export default function AdminArticles() {
                     >
                       Edit
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Article</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this article? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(article.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </TableCell>
               </TableRow>
