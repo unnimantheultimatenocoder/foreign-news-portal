@@ -50,7 +50,7 @@ export default function ArticleForm() {
     }
   });
 
-  const { data: article } = useQuery({
+  const { data: article, isLoading: isLoadingArticle } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
       if (!id) return null;
@@ -59,7 +59,7 @@ export default function ArticleForm() {
         .from('articles')
         .select()
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching article:', error);
@@ -129,7 +129,7 @@ export default function ArticleForm() {
     mutation.mutate(data);
   };
 
-  if (isEditing && !article && !form.formState.isSubmitting) {
+  if (isEditing && isLoadingArticle) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
