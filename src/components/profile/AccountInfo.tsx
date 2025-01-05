@@ -15,17 +15,16 @@ export const AccountInfo = () => {
   const { data: user, isLoading } = useQuery({
     queryKey: ['user-session'],
     queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Error fetching user:", error);
-        throw error;
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth');
+        return null;
       }
-      return user;
+      return session.user;
     },
     retry: false,
     meta: {
       errorHandler: () => {
-        // If we can't get the user, they're probably not logged in
         navigate('/auth');
       }
     }
@@ -34,20 +33,20 @@ export const AccountInfo = () => {
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true);
-      const { error } = await supabase.auth.signOut();
       
-      if (error) {
-        console.error("Sign out error:", error);
-        throw error;
+      // First try to get the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Only attempt to sign out if there's an active session
+      if (session) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
       }
       
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-      
-      // Invalidate the session
-      await supabase.auth.signOut({ scope: 'local' });
       
       navigate("/auth");
     } catch (error) {
@@ -72,6 +71,10 @@ export const AccountInfo = () => {
         <p className="text-center text-muted-foreground">Loading...</p>
       </motion.div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
