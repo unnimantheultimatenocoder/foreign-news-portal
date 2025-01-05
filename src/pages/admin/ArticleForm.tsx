@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,10 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 
 interface ArticleFormData {
   title: string;
@@ -33,30 +29,26 @@ interface ArticleFormData {
   original_url: string;
   image_url?: string;
   category_id?: string;
-  scheduled_for?: Date | null;
-  status: 'draft' | 'published' | 'archived';
-  source: string;
 }
-
-const defaultValues: ArticleFormData = {
-  title: '',
-  summary: '',
-  original_url: '',
-  image_url: '',
-  category_id: undefined,
-  scheduled_for: null,
-  status: 'draft',
-  source: 'manual',
-};
 
 export default function ArticleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const isEditing = Boolean(id);
+
   const form = useForm<ArticleFormData>({
-    defaultValues,
+    defaultValues: {
+      title: "",
+      summary: "",
+      original_url: "",
+      image_url: "",
+      category_id: undefined,
+    },
   });
 
+  // Fetch categories for the select dropdown
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -64,77 +56,73 @@ export default function ArticleForm() {
         .from('categories')
         .select('*')
         .order('name');
+      
       if (error) throw error;
       return data;
-    },
+    }
   });
 
-  const { data: article } = useQuery({
+  // Only fetch article data if we're editing an existing article
+  const { data: article, isLoading } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
       if (!id) return null;
+      
       const { data, error } = await supabase
         .from('articles')
         .select('*')
         .eq('id', id)
-        .maybeSingle();
+        .single();
+      
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: isEditing, // Only run this query if we're editing
   });
 
+  // Update form when article data is loaded
   useEffect(() => {
     if (article) {
       form.reset({
         title: article.title,
         summary: article.summary,
         original_url: article.original_url,
-        image_url: article.image_url || '',
-        category_id: article.category_id || undefined,
-        scheduled_for: article.scheduled_for ? new Date(article.scheduled_for) : null,
-        status: article.status as 'draft' | 'published' | 'archived',
-        source: article.source,
+        image_url: article.image_url || "",
+        category_id: article.category_id,
       });
     }
   }, [article, form]);
 
   const mutation = useMutation({
     mutationFn: async (data: ArticleFormData) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Not authenticated');
+      const { data: result, error } = isEditing
+        ? await supabase
+            .from('articles')
+            .update(data)
+            .eq('id', id)
+            .select()
+            .single()
+        : await supabase
+            .from('articles')
+            .insert([{ ...data, status: 'draft' }])
+            .select()
+            .single();
 
-      const articleData = {
-        ...data,
-        moderated_by: userData.user.id,
-        moderated_at: new Date().toISOString(),
-        scheduled_for: data.scheduled_for?.toISOString() || null,
-      };
-
-      if (id) {
-        const { error } = await supabase
-          .from('articles')
-          .update(articleData)
-          .eq('id', id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('articles')
-          .insert([articleData]);
-        if (error) throw error;
-      }
+      if (error) throw error;
+      return result;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
       toast({
         title: "Success",
-        description: `Article ${id ? 'updated' : 'created'} successfully`,
+        description: `Article ${isEditing ? 'updated' : 'created'} successfully`,
       });
       navigate('/admin/articles');
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: `Failed to ${id ? 'update' : 'create'} article: ${error.message}`,
+        description: `Failed to ${isEditing ? 'update' : 'create'} article: ${error.message}`,
         variant: "destructive",
       });
     },
@@ -144,10 +132,14 @@ export default function ArticleForm() {
     mutation.mutate(data);
   };
 
+  if (isEditing && isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">
-        {id ? 'Edit Article' : 'Create New Article'}
+        {isEditing ? 'Edit Article' : 'Create New Article'}
       </h1>
 
       <Form {...form}>
@@ -159,7 +151,7 @@ export default function ArticleForm() {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder="Article title" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -173,7 +165,7 @@ export default function ArticleForm() {
               <FormItem>
                 <FormLabel>Summary</FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} placeholder="Article summary" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -187,7 +179,7 @@ export default function ArticleForm() {
               <FormItem>
                 <FormLabel>Original URL</FormLabel>
                 <FormControl>
-                  <Input {...field} type="url" />
+                  <Input {...field} placeholder="https://..." />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -199,9 +191,9 @@ export default function ArticleForm() {
             name="image_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Image URL</FormLabel>
+                <FormLabel>Image URL (optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} type="url" />
+                  <Input {...field} placeholder="https://..." />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -214,7 +206,10 @@ export default function ArticleForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
@@ -233,73 +228,9 @@ export default function ArticleForm() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="scheduled_for"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Schedule Publication</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={`w-[240px] pl-3 text-left font-normal ${
-                          !field.value && "text-muted-foreground"
-                        }`}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value || undefined}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date < new Date()
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <div className="flex gap-4">
             <Button type="submit" disabled={mutation.isPending}>
-              {id ? 'Update Article' : 'Create Article'}
+              {isEditing ? 'Update' : 'Create'} Article
             </Button>
             <Button
               type="button"
