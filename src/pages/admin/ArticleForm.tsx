@@ -55,17 +55,22 @@ export default function ArticleForm() {
     queryFn: async () => {
       if (!id) return null;
       
-      const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error fetching article:', error);
+      try {
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching article:', error);
+          throw error;
+        }
+        return data;
+      } catch (error) {
+        console.error('Error in queryFn:', error);
         throw error;
       }
-      return data;
     },
     enabled: Boolean(id),
   });
