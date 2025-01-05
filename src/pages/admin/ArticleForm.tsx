@@ -83,21 +83,26 @@ export default function ArticleForm() {
 
   const mutation = useMutation({
     mutationFn: async (data: ArticleFormData) => {
-      const { data: result, error } = isEditing
-        ? await supabase
-            .from('articles')
-            .update(data)
-            .eq('id', id)
-            .select()
-            .single()
-        : await supabase
-            .from('articles')
-            .insert([data])
-            .select()
-            .single();
+      if (isEditing) {
+        const { data: result, error } = await supabase
+          .from('articles')
+          .update(data)
+          .eq('id', id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return result;
+        if (error) throw error;
+        return result;
+      } else {
+        const { data: result, error } = await supabase
+          .from('articles')
+          .insert([data])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return result;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
