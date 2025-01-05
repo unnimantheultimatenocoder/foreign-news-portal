@@ -31,22 +31,22 @@ interface ArticleFormData {
   title: string;
   summary: string;
   original_url: string;
-  image_url: string;
-  category_id: string;
-  scheduled_for: Date | null;
+  image_url?: string;
+  category_id?: string;
+  scheduled_for?: Date | null;
   status: 'draft' | 'published' | 'archived';
   source: string;
 }
 
-const defaultValues: Partial<ArticleFormData> = {
+const defaultValues: ArticleFormData = {
   title: '',
   summary: '',
   original_url: '',
   image_url: '',
-  category_id: '',
+  category_id: undefined,
   scheduled_for: null,
   status: 'draft',
-  source: 'manual', // Default source for manually created articles
+  source: 'manual',
 };
 
 export default function ArticleForm() {
@@ -57,7 +57,6 @@ export default function ArticleForm() {
     defaultValues,
   });
 
-  // Fetch categories for the select input
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -70,7 +69,6 @@ export default function ArticleForm() {
     },
   });
 
-  // Fetch article data if editing
   const { data: article } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
@@ -79,14 +77,13 @@ export default function ArticleForm() {
         .from('articles')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
     enabled: !!id,
   });
 
-  // Set form values when article data is loaded
   useEffect(() => {
     if (article) {
       form.reset({
@@ -94,7 +91,7 @@ export default function ArticleForm() {
         summary: article.summary,
         original_url: article.original_url,
         image_url: article.image_url || '',
-        category_id: article.category_id || '',
+        category_id: article.category_id || undefined,
         scheduled_for: article.scheduled_for ? new Date(article.scheduled_for) : null,
         status: article.status as 'draft' | 'published' | 'archived',
         source: article.source,
@@ -102,13 +99,14 @@ export default function ArticleForm() {
     }
   }, [article, form]);
 
-  // Handle form submission
   const mutation = useMutation({
     mutationFn: async (data: ArticleFormData) => {
       const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('Not authenticated');
+
       const articleData = {
         ...data,
-        moderated_by: userData.user?.id,
+        moderated_by: userData.user.id,
         moderated_at: new Date().toISOString(),
         scheduled_for: data.scheduled_for?.toISOString() || null,
       };
@@ -216,7 +214,7 @@ export default function ArticleForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
@@ -262,7 +260,7 @@ export default function ArticleForm() {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={field.value}
+                      selected={field.value || undefined}
                       onSelect={field.onChange}
                       disabled={(date) =>
                         date < new Date()
@@ -282,7 +280,7 @@ export default function ArticleForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />

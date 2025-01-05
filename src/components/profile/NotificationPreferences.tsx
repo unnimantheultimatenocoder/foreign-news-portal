@@ -4,11 +4,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
+interface NotificationSettings {
+  email: boolean;
+  push: boolean;
+}
+
+interface UserPreferences {
+  notification_settings: NotificationSettings;
+  categories: string[];
+}
+
 export const NotificationPreferences = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: preferences } = useQuery({
+  const { data: preferences } = useQuery<UserPreferences>({
     queryKey: ['userPreferences'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -30,7 +40,7 @@ export const NotificationPreferences = () => {
       if (categoriesError) throw categoriesError;
 
       return {
-        notification_settings: profile?.notification_settings || {
+        notification_settings: profile?.notification_settings as NotificationSettings || {
           email: false,
           push: false,
         },
@@ -40,7 +50,7 @@ export const NotificationPreferences = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (newSettings: { notification_settings: { email: boolean; push: boolean } }) => {
+    mutationFn: async (newSettings: { notification_settings: NotificationSettings }) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error('No user session found');
 
@@ -68,7 +78,7 @@ export const NotificationPreferences = () => {
     },
   });
 
-  const handleNotificationToggle = (type: 'email' | 'push') => {
+  const handleNotificationToggle = (type: keyof NotificationSettings) => {
     if (!preferences?.notification_settings) return;
 
     const newSettings = {
