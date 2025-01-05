@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUserPreferences, updateUserPreferences } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export const NotificationPreferences = () => {
@@ -10,11 +10,47 @@ export const NotificationPreferences = () => {
 
   const { data: preferences } = useQuery({
     queryKey: ['userPreferences'],
-    queryFn: getUserPreferences,
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error('No user session found');
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const { data: categories, error: categoriesError } = await supabase
+        .from('user_category_preferences')
+        .select('category_id')
+        .eq('user_id', session.user.id);
+
+      if (categoriesError) throw categoriesError;
+
+      return {
+        notification_settings: profile?.notification_settings || {
+          email: false,
+          push: false,
+        },
+        categories: categories?.map(c => c.category_id) || [],
+      };
+    },
   });
 
   const mutation = useMutation({
-    mutationFn: updateUserPreferences,
+    mutationFn: async (newSettings: { notification_settings: { email: boolean; push: boolean } }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error('No user session found');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ notification_settings: newSettings.notification_settings })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userPreferences'] });
       toast({
@@ -33,10 +69,9 @@ export const NotificationPreferences = () => {
   });
 
   const handleNotificationToggle = (type: 'email' | 'push') => {
-    if (!preferences) return;
+    if (!preferences?.notification_settings) return;
 
     const newSettings = {
-      ...preferences,
       notification_settings: {
         ...preferences.notification_settings,
         [type]: !preferences.notification_settings[type],
@@ -87,7 +122,7 @@ export const NotificationPreferences = () => {
             <p className="text-sm text-black/70 dark:text-white/70">Receive news updates via email</p>
           </div>
           <Switch
-            checked={preferences?.notification_settings.email}
+            checked={preferences?.notification_settings?.email || false}
             onCheckedChange={() => handleNotificationToggle('email')}
           />
         </motion.div>
@@ -101,7 +136,7 @@ export const NotificationPreferences = () => {
             <p className="text-sm text-black/70 dark:text-white/70">Get instant updates on your device</p>
           </div>
           <Switch
-            checked={preferences?.notification_settings.push}
+            checked={preferences?.notification_settings?.push || false}
             onCheckedChange={() => handleNotificationToggle('push')}
           />
         </motion.div>

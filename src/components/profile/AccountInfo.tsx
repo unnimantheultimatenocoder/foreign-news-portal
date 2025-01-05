@@ -23,7 +23,9 @@ export const AccountInfo = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
@@ -35,6 +37,7 @@ export const AccountInfo = () => {
         description: "Failed to sign out. Please try again.",
         variant: "destructive",
       });
+      console.error("Sign out error:", error);
     }
   };
 
