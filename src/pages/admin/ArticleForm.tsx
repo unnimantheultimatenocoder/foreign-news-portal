@@ -19,7 +19,7 @@ interface ArticleFormData {
 }
 
 export default function ArticleForm() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -50,7 +50,7 @@ export default function ArticleForm() {
     }
   });
 
-  const { data: article } = useQuery({
+  const { data: article, isLoading: isArticleLoading } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
       if (!id) return null;
@@ -59,7 +59,7 @@ export default function ArticleForm() {
         .from('articles')
         .select('*')
         .eq('id', id)
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;
@@ -89,7 +89,7 @@ export default function ArticleForm() {
           .update(data)
           .eq('id', id)
           .select()
-          .maybeSingle();
+          .single();
 
         if (error) throw error;
         return result;
@@ -98,7 +98,7 @@ export default function ArticleForm() {
           .from('articles')
           .insert([data])
           .select()
-          .maybeSingle();
+          .single();
 
         if (error) throw error;
         return result;
@@ -124,6 +124,10 @@ export default function ArticleForm() {
   const onSubmit = (data: ArticleFormData) => {
     mutation.mutate(data);
   };
+
+  if (isEditing && isArticleLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-6">
