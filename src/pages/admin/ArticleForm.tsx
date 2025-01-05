@@ -19,7 +19,7 @@ interface ArticleFormData {
 }
 
 export default function ArticleForm() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -64,7 +64,7 @@ export default function ArticleForm() {
       if (error) throw error;
       return data;
     },
-    enabled: isEditing,
+    enabled: Boolean(id), // Only run query if id exists
   });
 
   useEffect(() => {
