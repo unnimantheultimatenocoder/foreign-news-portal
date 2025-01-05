@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface NotificationSettings {
   email: boolean;
@@ -12,6 +13,11 @@ interface NotificationSettings {
 interface UserPreferences {
   notification_settings: NotificationSettings;
   categories: string[];
+}
+
+interface Profile {
+  notification_settings: Json;
+  id: string;
 }
 
 export const NotificationPreferences = () => {
@@ -39,11 +45,13 @@ export const NotificationPreferences = () => {
 
       if (categoriesError) throw categoriesError;
 
+      const notificationSettings = profile?.notification_settings as NotificationSettings || {
+        email: false,
+        push: false,
+      };
+
       return {
-        notification_settings: profile?.notification_settings as NotificationSettings || {
-          email: false,
-          push: false,
-        },
+        notification_settings: notificationSettings,
         categories: categories?.map(c => c.category_id) || [],
       };
     },
@@ -56,7 +64,9 @@ export const NotificationPreferences = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ notification_settings: newSettings.notification_settings })
+        .update({ 
+          notification_settings: newSettings.notification_settings as Json 
+        })
         .eq('id', session.user.id);
 
       if (error) throw error;
