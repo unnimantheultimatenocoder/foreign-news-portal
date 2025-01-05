@@ -45,9 +45,11 @@ export const NotificationPreferences = () => {
 
       if (categoriesError) throw categoriesError;
 
-      const notificationSettings = profile?.notification_settings as NotificationSettings || {
-        email: false,
-        push: false,
+      // Safely cast the JSON to NotificationSettings with a type guard
+      const rawSettings = profile?.notification_settings as { [key: string]: boolean } | null;
+      const notificationSettings: NotificationSettings = {
+        email: rawSettings?.email ?? false,
+        push: rawSettings?.push ?? false,
       };
 
       return {
@@ -62,10 +64,16 @@ export const NotificationPreferences = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error('No user session found');
 
+      // Convert NotificationSettings to a plain object that matches Json type
+      const jsonSettings: { [key: string]: boolean } = {
+        email: newSettings.notification_settings.email,
+        push: newSettings.notification_settings.push,
+      };
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          notification_settings: newSettings.notification_settings as Json 
+          notification_settings: jsonSettings
         })
         .eq('id', session.user.id);
 
