@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
@@ -8,21 +8,49 @@ import { TrendingArticles } from "@/components/TrendingArticles";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { AccountInfo } from "@/components/profile/AccountInfo";
 import { NotificationPreferences } from "@/components/profile/NotificationPreferences";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Profile = () => {
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { data: session, isLoading: sessionLoading } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    enabled: !!session?.user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session?.user?.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setLoading(false);
-      }
-    };
-    checkUser();
-  }, []);
+    if (!sessionLoading && !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to view your profile",
+        variant: "destructive",
+      });
+      navigate('/auth');
+    }
+  }, [session, sessionLoading, navigate, toast]);
 
-  if (loading) {
+  if (sessionLoading || profileLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -31,6 +59,10 @@ const Profile = () => {
         </div>
       </div>
     );
+  }
+
+  if (!session || !profile) {
+    return null;
   }
 
   return (
