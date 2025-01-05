@@ -32,8 +32,8 @@ export default function ArticleForm() {
       original_url: "",
       image_url: "",
       category_id: undefined,
-      source: "manual", // Default source for manually created articles
-      status: "draft", // Default status
+      source: "manual",
+      status: "draft",
     },
   });
 
@@ -59,12 +59,12 @@ export default function ArticleForm() {
         .from('articles')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
     },
-    enabled: Boolean(id), // Only run query if id exists
+    enabled: Boolean(id),
   });
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function ArticleForm() {
           .update(data)
           .eq('id', id)
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
@@ -98,7 +98,7 @@ export default function ArticleForm() {
           .from('articles')
           .insert([data])
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
