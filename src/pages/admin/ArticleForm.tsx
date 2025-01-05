@@ -50,7 +50,7 @@ export default function ArticleForm() {
     }
   });
 
-  const { data: article, isLoading: isArticleLoading } = useQuery({
+  const { data: article } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
       if (!id) return null;
@@ -61,7 +61,10 @@ export default function ArticleForm() {
         .eq('id', id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching article:', error);
+        throw error;
+      }
       return data;
     },
     enabled: Boolean(id),
@@ -126,7 +129,7 @@ export default function ArticleForm() {
     mutation.mutate(data);
   };
 
-  if (isEditing && isArticleLoading) {
+  if (isEditing && !article && !form.formState.isSubmitting) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
