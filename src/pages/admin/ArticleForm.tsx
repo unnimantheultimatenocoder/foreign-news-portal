@@ -61,7 +61,10 @@ export default function ArticleForm() {
         .eq('id', id)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching article:', error);
+        throw error;
+      }
       return data;
     },
     enabled: Boolean(id),
@@ -113,6 +116,7 @@ export default function ArticleForm() {
       navigate('/admin/articles');
     },
     onError: (error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Error",
         description: `Failed to ${isEditing ? 'update' : 'create'} article: ${error.message}`,
@@ -126,7 +130,7 @@ export default function ArticleForm() {
   };
 
   if (isEditing && isArticleLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
   return (
