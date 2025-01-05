@@ -4,24 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { ArticleFormFields } from "./components/ArticleFormFields";
 
 interface ArticleFormData {
   title: string;
@@ -29,6 +14,8 @@ interface ArticleFormData {
   original_url: string;
   image_url?: string;
   category_id?: string;
+  source: string;
+  status: string;
 }
 
 export default function ArticleForm() {
@@ -45,10 +32,11 @@ export default function ArticleForm() {
       original_url: "",
       image_url: "",
       category_id: undefined,
+      source: "manual", // Default source for manually created articles
+      status: "draft", // Default status
     },
   });
 
-  // Fetch categories for the select dropdown
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -62,7 +50,6 @@ export default function ArticleForm() {
     }
   });
 
-  // Only fetch article data if we're editing an existing article
   const { data: article, isLoading } = useQuery({
     queryKey: ['article', id],
     queryFn: async () => {
@@ -77,10 +64,9 @@ export default function ArticleForm() {
       if (error) throw error;
       return data;
     },
-    enabled: isEditing, // Only run this query if we're editing
+    enabled: isEditing,
   });
 
-  // Update form when article data is loaded
   useEffect(() => {
     if (article) {
       form.reset({
@@ -89,6 +75,8 @@ export default function ArticleForm() {
         original_url: article.original_url,
         image_url: article.image_url || "",
         category_id: article.category_id,
+        source: article.source,
+        status: article.status,
       });
     }
   }, [article, form]);
@@ -104,7 +92,7 @@ export default function ArticleForm() {
             .single()
         : await supabase
             .from('articles')
-            .insert([{ ...data, status: 'draft' }])
+            .insert([data])
             .select()
             .single();
 
@@ -144,90 +132,8 @@ export default function ArticleForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Article title" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="summary"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Summary</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="Article summary" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="original_url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Original URL</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="https://..." />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="image_url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Image URL (optional)</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="https://..." />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="category_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+          <ArticleFormFields control={form.control} categories={categories} />
+          
           <div className="flex gap-4">
             <Button type="submit" disabled={mutation.isPending}>
               {isEditing ? 'Update' : 'Create'} Article
