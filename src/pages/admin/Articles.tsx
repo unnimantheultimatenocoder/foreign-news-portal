@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ export default function AdminArticles() {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const { data: articles, isLoading } = useQuery({
     queryKey: ['admin-articles', search],
@@ -42,28 +43,40 @@ export default function AdminArticles() {
     }
   });
 
-  const handleStatusChange = async (id: string, status: string) => {
-    const { error } = await supabase
-      .from('articles')
-      .update({ 
-        status,
-        moderated_by: (await supabase.auth.getUser()).data.user?.id,
-        moderated_at: new Date().toISOString()
-      })
-      .eq('id', id);
+  const publishMutation = useMutation({
+    mutationFn: async (articleId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update article status",
-        variant: "destructive"
-      });
-    } else {
+      const { error } = await supabase
+        .from('articles')
+        .update({ 
+          status: 'published',
+          moderated_by: user.id,
+          moderated_at: new Date().toISOString()
+        })
+        .eq('id', articleId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
       toast({
         title: "Success",
-        description: "Article status updated successfully"
+        description: "Article published successfully"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to publish article: ${error.message}`,
+        variant: "destructive"
       });
     }
+  });
+
+  const handlePublish = async (articleId: string) => {
+    publishMutation.mutate(articleId);
   };
 
   return (
@@ -115,14 +128,15 @@ export default function AdminArticles() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleStatusChange(article.id, 'published')}
+                      onClick={() => handlePublish(article.id)}
+                      disabled={article.status === 'published'}
                     >
                       Publish
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
+                      onClick={() => navigate(`/admin/articles/${article.id}/edit`)}
                     >
                       Edit
                     </Button>
