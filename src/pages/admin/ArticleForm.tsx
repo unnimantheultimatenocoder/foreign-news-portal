@@ -92,7 +92,7 @@ export default function ArticleForm() {
           .update(data)
           .eq('id', id)
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
@@ -101,7 +101,7 @@ export default function ArticleForm() {
           .from('articles')
           .insert([data])
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         return result;
