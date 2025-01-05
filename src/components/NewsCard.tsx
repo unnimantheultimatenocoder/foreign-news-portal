@@ -60,7 +60,7 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
           .select('*')
           .eq('article_id', id)
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();  // Changed from .single() to .maybeSingle()
         setIsSaved(!!data);
       }
     };
