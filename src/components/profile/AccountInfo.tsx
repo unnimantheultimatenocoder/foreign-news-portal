@@ -23,9 +23,11 @@ export const AccountInfo = () => {
       return user;
     },
     retry: false,
-    onError: () => {
-      // If we can't get the user, they're probably not logged in
-      navigate('/auth');
+    meta: {
+      errorHandler: () => {
+        // If we can't get the user, they're probably not logged in
+        navigate('/auth');
+      }
     }
   });
 
@@ -44,8 +46,8 @@ export const AccountInfo = () => {
         description: "You have been successfully signed out.",
       });
       
-      // Clear any cached data
-      await supabase.auth.clearSession();
+      // Invalidate the session
+      await supabase.auth.signOut({ scope: 'local' });
       
       navigate("/auth");
     } catch (error) {
