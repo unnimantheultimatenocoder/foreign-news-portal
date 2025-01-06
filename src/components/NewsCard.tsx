@@ -41,9 +41,9 @@ export const NewsCard = ({
           .select('id')
           .eq('article_id', id)
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
+        if (error) {
           console.error('Error checking saved status:', error);
           return;
         }
@@ -112,7 +112,7 @@ export const NewsCard = ({
           .from('saved_articles')
           .insert([{ article_id: id, user_id: user.id }])
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) {
           // If it's a duplicate error, just update the UI state
