@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +28,34 @@ export const NewsCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+
+  // Check if article is saved on component mount
+  useEffect(() => {
+    const checkIfSaved = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('saved_articles')
+          .select('id')
+          .eq('article_id', id)
+          .eq('user_id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking saved status:', error);
+          return;
+        }
+
+        setIsSaved(!!data);
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    };
+
+    checkIfSaved();
+  }, [id]);
 
   const handleShare = async () => {
     try {
@@ -69,7 +97,8 @@ export const NewsCard = ({
         const { error } = await supabase
           .from('saved_articles')
           .delete()
-          .match({ article_id: id, user_id: user.id });
+          .eq('article_id', id)
+          .eq('user_id', user.id);
 
         if (error) throw error;
         
@@ -81,9 +110,22 @@ export const NewsCard = ({
       } else {
         const { error } = await supabase
           .from('saved_articles')
-          .insert([{ article_id: id, user_id: user.id }]);
+          .insert([{ article_id: id, user_id: user.id }])
+          .select()
+          .single();
 
-        if (error) throw error;
+        if (error) {
+          // If it's a duplicate error, just update the UI state
+          if (error.code === '23505') {
+            setIsSaved(true);
+            toast({
+              title: "Info",
+              description: "Article was already saved",
+            });
+            return;
+          }
+          throw error;
+        }
         
         setIsSaved(true);
         toast({
