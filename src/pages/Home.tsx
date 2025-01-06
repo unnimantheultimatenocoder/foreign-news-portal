@@ -84,6 +84,16 @@ const Home = () => {
     );
   }
 
+  const formatArticleForNewsCard = (article: any) => ({
+    id: article.id,
+    title: article.title,
+    summary: article.summary,
+    imageUrl: article.image_url,
+    category: article.category?.name || article.source,
+    date: new Date(article.published_at).toLocaleDateString(),
+    url: article.original_url,
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
@@ -114,7 +124,7 @@ const Home = () => {
                   {allArticles[currentIndex] && (
                     <NewsCard
                       key={allArticles[currentIndex].id}
-                      {...allArticles[currentIndex]}
+                      {...formatArticleForNewsCard(allArticles[currentIndex])}
                     />
                   )}
                 </motion.div>
@@ -145,7 +155,7 @@ const Home = () => {
               {allArticles.map((article) => (
                 <NewsCard
                   key={article.id}
-                  {...article}
+                  {...formatArticleForNewsCard(article)}
                 />
               ))}
             </motion.div>
