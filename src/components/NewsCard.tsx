@@ -1,11 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Bookmark, Clock } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { calculateReadingTime } from "@/lib/utils";
-import { ShareMenu } from "./news/ShareMenu";
+import { supabase } from "@/integrations/supabase/client";
+import { NewsCardImage } from "./news/NewsCardImage";
+import { NewsCardContent } from "./news/NewsCardContent";
+import { NewsCardActions } from "./news/NewsCardActions";
 
 interface NewsCardProps {
   id: string;
@@ -17,59 +16,44 @@ interface NewsCardProps {
   url: string;
 }
 
-export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: NewsCardProps) => {
-  const [isIntersecting, setIsIntersecting] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+export const NewsCard = ({
+  id,
+  title,
+  summary,
+  imageUrl,
+  category,
+  date,
+  url,
+}: NewsCardProps) => {
   const [isSaved, setIsSaved] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
-  const readingTime = calculateReadingTime(summary);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-      },
-      {
-        rootMargin: "50px",
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title,
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied",
+          description: "The article link has been copied to your clipboard.",
+        });
       }
-    );
-
-    const element = document.querySelector(`[data-image-url="${imageUrl}"]`);
-    if (element) {
-      observer.observe(element);
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to share the article.",
+        variant: "destructive",
+      });
     }
+  };
 
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
-  }, [imageUrl]);
-
-  useEffect(() => {
-    const checkIfSaved = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data } = await supabase
-            .from('saved_articles')
-            .select('*')
-            .eq('article_id', id)
-            .eq('user_id', user.id)
-            .maybeSingle();
-          setIsSaved(!!data);
-        }
-      } catch (error) {
-        console.error('Error checking saved status:', error);
-      }
-    };
-    checkIfSaved();
-  }, [id]);
-
-  const handleSave = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleSave = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -82,16 +66,12 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
       }
 
       if (isSaved) {
-        // Delete the saved article
         const { error } = await supabase
           .from('saved_articles')
           .delete()
           .match({ article_id: id, user_id: user.id });
 
-        if (error) {
-          console.error('Error deleting saved article:', error);
-          throw error;
-        }
+        if (error) throw error;
         
         setIsSaved(false);
         toast({
@@ -99,33 +79,11 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
           description: "Article removed from saved articles",
         });
       } else {
-        // Check if article is already saved
-        const { data: existingArticle } = await supabase
-          .from('saved_articles')
-          .select('*')
-          .match({ article_id: id, user_id: user.id })
-          .maybeSingle();
-
-        if (existingArticle) {
-          toast({
-            title: "Info",
-            description: "Article is already saved",
-          });
-          setIsSaved(true);
-          return;
-        }
-
-        // Save the article
         const { error } = await supabase
           .from('saved_articles')
-          .insert([
-            { article_id: id, user_id: user.id }
-          ]);
+          .insert([{ article_id: id, user_id: user.id }]);
 
-        if (error) {
-          console.error('Error saving article:', error);
-          throw error;
-        }
+        if (error) throw error;
         
         setIsSaved(true);
         toast({
@@ -146,62 +104,23 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      whileTap={{ scale: 0.98 }}
-      className="w-full"
+      className="overflow-hidden bg-card rounded-xl border shadow-sm"
     >
-      <Card className="overflow-hidden cursor-pointer group relative">
-        <div className="absolute top-4 right-4 z-10 flex gap-2">
-          <button
-            onClick={handleSave}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-          >
-            <Bookmark
-              className={`w-4 h-4 ${isSaved ? 'fill-current text-blue-500' : 'text-gray-500'}`}
-            />
-          </button>
-          <ShareMenu title={title} url={url} />
-        </div>
-        <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-          <div className="relative h-48 overflow-hidden" data-image-url={imageUrl}>
-            {isIntersecting && (
-              <img
-                src={imageUrl}
-                alt={title}
-                className={`w-full h-full object-cover transition-all duration-300 ${
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                } group-hover:scale-105`}
-                loading="lazy"
-                onLoad={() => setImageLoaded(true)}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
-            )}
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-            )}
-            <div className="absolute top-4 left-4">
-              <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm font-medium">
-                {category}
-              </span>
-            </div>
-          </div>
-          <div className="p-5">
-            <div className="flex justify-between items-center mb-3">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">{date}</span>
-                <div className="flex items-center text-gray-600">
-                  <Clock className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{readingTime} min read</span>
-                </div>
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-500 transition-colors">
-              {title}
-            </h3>
-            <p className="text-gray-600 line-clamp-3 text-sm">{summary}</p>
-          </div>
-        </a>
-      </Card>
+      <NewsCardImage imageUrl={imageUrl} title={title} />
+      <NewsCardContent
+        title={title}
+        summary={summary}
+        source={category}
+        date={date}
+        expanded={expanded}
+        onToggleExpand={() => setExpanded(!expanded)}
+      />
+      <NewsCardActions
+        onShare={handleShare}
+        onSave={handleSave}
+        onReadMore={() => window.open(url, '_blank')}
+        isSaved={isSaved}
+      />
     </motion.div>
   );
 };

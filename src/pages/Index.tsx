@@ -1,53 +1,30 @@
 import { useEffect, useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { getArticles, getUserPreferences, getCategories } from "@/lib/api";
+import { Search } from "lucide-react";
+import { getArticles } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
-import { CategoryFilter } from "@/components/CategoryFilter";
+import { CategoryCard } from "@/components/CategoryCard";
 import { BottomNav } from "@/components/BottomNav";
-import { TopNav } from "@/components/TopNav";
-import { AIChat } from "@/components/AIChat";
-import { useAppStore } from "@/stores/useAppStore";
+import { Input } from "@/components/ui/input";
 import { useInView } from "react-intersection-observer";
 
 const ITEMS_PER_PAGE = 20;
 
 const Index = () => {
-  const { activeCategories, setPreferences } = useAppStore();
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState("");
   const { ref: loadMoreRef, inView } = useInView();
-
-  const { data: preferences } = useQuery({
-    queryKey: ['userPreferences'],
-    queryFn: getUserPreferences,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-  });
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => getCategories().then(data => data || []),
-    staleTime: 60 * 60 * 1000,
-    gcTime: 24 * 60 * 60 * 1000,
-  });
-
-  useEffect(() => {
-    if (preferences) {
-      setPreferences(preferences);
-    }
-  }, [preferences, setPreferences]);
 
   const {
     data,
-    isLoading: isArticlesLoading,
+    isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['articles', { categories: activeCategories }],
+    queryKey: ['articles', searchQuery],
     queryFn: async ({ pageParam = 1 }) => {
       const result = await getArticles({
-        category: activeCategories[0],
+        search: searchQuery,
         limit: ITEMS_PER_PAGE,
         page: pageParam,
       });
@@ -58,57 +35,51 @@ const Index = () => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
   });
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    if (inView && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [inView, hasNextPage, fetchNextPage]);
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(error => {
-          console.error('Service Worker registration failed:', error);
-        });
-      });
-    }
-  }, []);
-
-  if (isArticlesLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-          <p className="mt-4 text-secondary">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const articles = data?.pages?.flatMap(page => page?.articles || []) || [];
+  const articles = data?.pages.flatMap(page => page.articles) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 pt-16">
-      <TopNav />
-      
-      <CategoryFilter 
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-        categories={categories}
-      />
+    <div className="min-h-screen bg-background pt-20 pb-20">
+      <div className="max-w-7xl mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">
+          Explore
+        </h1>
+        
+        <div className="relative mb-8">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            type="search"
+            placeholder="Search for topics..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid gap-6 md:grid-cols-2"
-            >
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
+          <CategoryCard type="global" title="Global News" />
+          <CategoryCard type="jobs" title="Jobs" />
+          <CategoryCard type="education" title="Education" />
+          <CategoryCard type="immigration" title="Immigration" />
+          <CategoryCard type="tech" title="Tech Updates" />
+        </div>
+
+        {isLoading ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-[400px] bg-card animate-pulse rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {articles.map((article) => (
                 <NewsCard
                   key={article.id}
@@ -121,19 +92,15 @@ const Index = () => {
                   url={article.original_url}
                 />
               ))}
-            </motion.div>
-            {(hasNextPage || isFetchingNextPage) && (
+            </div>
+            {hasNextPage && (
               <div ref={loadMoreRef} className="flex justify-center mt-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
             )}
-          </div>
-          <div className="lg:col-span-1">
-            <AIChat />
-          </div>
-        </div>
-      </main>
-
+          </>
+        )}
+      </div>
       <BottomNav />
     </div>
   );

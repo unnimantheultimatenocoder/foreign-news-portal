@@ -48,6 +48,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        category: {
+          'global': '#4285F4',  // Blue
+          'jobs': '#34A853',    // Green
+          'education': '#FBBC05', // Yellow
+          'immigration': '#A142F4', // Purple
+          'tech': '#EA4335',    // Red
+        }
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "card-hover": {
