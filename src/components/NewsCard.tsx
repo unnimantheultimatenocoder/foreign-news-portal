@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsCardImage } from "./news/NewsCardImage";
 import { NewsCardContent } from "./news/NewsCardContent";
@@ -33,7 +33,7 @@ export const NewsCard = ({
   const [expanded, setExpanded] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const toast = useToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkSavedStatus = async () => {
@@ -114,7 +114,7 @@ export const NewsCard = ({
       <NewsCardContent
         title={title}
         summary={summary}
-        category={category}
+        source={category}
         date={date}
         expanded={expanded}
         onToggleExpand={() => setExpanded(!expanded)}
@@ -131,7 +131,6 @@ export const NewsCard = ({
         <ShareMenu
           url={url}
           title={title}
-          onClose={() => setShowShareMenu(false)}
         />
       )}
     </motion.div>
