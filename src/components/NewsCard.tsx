@@ -82,13 +82,16 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
       }
 
       if (isSaved) {
+        // Delete the saved article
         const { error } = await supabase
           .from('saved_articles')
           .delete()
-          .eq('article_id', id)
-          .eq('user_id', user.id);
+          .match({ article_id: id, user_id: user.id });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error deleting saved article:', error);
+          throw error;
+        }
         
         setIsSaved(false);
         toast({
@@ -96,13 +99,33 @@ export const NewsCard = ({ id, title, summary, imageUrl, category, date, url }: 
           description: "Article removed from saved articles",
         });
       } else {
+        // Check if article is already saved
+        const { data: existingArticle } = await supabase
+          .from('saved_articles')
+          .select('*')
+          .match({ article_id: id, user_id: user.id })
+          .maybeSingle();
+
+        if (existingArticle) {
+          toast({
+            title: "Info",
+            description: "Article is already saved",
+          });
+          setIsSaved(true);
+          return;
+        }
+
+        // Save the article
         const { error } = await supabase
           .from('saved_articles')
           .insert([
             { article_id: id, user_id: user.id }
           ]);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error saving article:', error);
+          throw error;
+        }
         
         setIsSaved(true);
         toast({
