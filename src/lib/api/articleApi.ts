@@ -3,8 +3,26 @@ import type { Article, Category } from "./types";
 import { AppError } from "../errors";
 
 const sanitizeUrl = (url: string): string => {
+  if (!url) return '';
+  
   // Remove any trailing colons and ensure proper URL format
-  return url.replace(/:\/\/+/g, '://').replace(/:\//g, '/').replace(/([^:])\/+/g, '$1/');
+  let sanitized = url.trim()
+    .replace(/:[/]+/g, '://') // Fix protocol separator
+    .replace(/([^:])\/+/g, '$1/') // Remove duplicate slashes
+    .replace(/:+$/, ''); // Remove trailing colons
+  
+  // Ensure the URL has a proper protocol
+  if (!sanitized.startsWith('http://') && !sanitized.startsWith('https://')) {
+    sanitized = `https://${sanitized}`;
+  }
+  
+  try {
+    new URL(sanitized); // Validate URL format
+    return sanitized;
+  } catch (error) {
+    console.error('Invalid URL:', url, error);
+    return '';
+  }
 };
 
 export const getArticles = async ({

@@ -18,21 +18,12 @@ export class AppError extends Error {
 export const handleApiError = (error: unknown): ApiError => {
   console.error('API Error:', error);
 
-  // Handle URL-related errors
-  if (error instanceof TypeError && error.message.includes('URL')) {
-    return {
-      code: 'INVALID_URL',
-      message: 'Invalid URL format or network error',
-      details: { originalError: error.message },
-    };
-  }
-
   // Handle HTTP client errors (like 404)
   if (error && typeof error === 'object' && 'error_type' in error) {
     const clientError = error as { message: string; error_type: string };
     return {
       code: clientError.error_type.toUpperCase(),
-      message: clientError.message,
+      message: 'Unable to fetch the requested resource. Please try again later.',
       details: { originalError: error },
     };
   }
