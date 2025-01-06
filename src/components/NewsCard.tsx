@@ -14,6 +14,8 @@ interface NewsCardProps {
   category: string;
   date: string;
   url: string;
+  showDelete?: boolean;
+  onDelete?: () => void;
 }
 
 export const NewsCard = ({
@@ -24,6 +26,8 @@ export const NewsCard = ({
   category,
   date,
   url,
+  showDelete = false,
+  onDelete
 }: NewsCardProps) => {
   const [isSaved, setIsSaved] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -143,10 +147,16 @@ export const NewsCard = ({
     }
   };
 
+  const handleDelete = async () => {
+    if (onDelete) {
+      onDelete();
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="overflow-hidden bg-card rounded-xl border shadow-sm"
+      className="overflow-hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm"
     >
       <NewsCardImage imageUrl={imageUrl} title={title} />
       <NewsCardContent
@@ -160,8 +170,10 @@ export const NewsCard = ({
       <NewsCardActions
         onShare={handleShare}
         onSave={handleSave}
+        onDelete={handleDelete}
         onReadMore={() => window.open(url, '_blank')}
         isSaved={isSaved}
+        showDelete={showDelete}
       />
     </motion.div>
   );
