@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Category } from "@/lib/api/types";
+import { useQuery } from "@tanstack/react-query";
+import { getCategories } from "@/lib/api";
 
 interface ArticleFormData {
   title: string;
@@ -29,10 +30,14 @@ interface ArticleFormData {
 
 interface ArticleFormFieldsProps {
   control: Control<ArticleFormData>;
-  categories?: Category[];
 }
 
-export function ArticleFormFields({ control, categories }: ArticleFormFieldsProps) {
+export function ArticleFormFields({ control }: ArticleFormFieldsProps) {
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  });
+
   return (
     <>
       <FormField
@@ -106,7 +111,7 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-900">
                 {categories?.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}

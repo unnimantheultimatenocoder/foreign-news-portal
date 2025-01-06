@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import PullToRefresh from "react-pull-to-refresh";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { getArticles, type Article, type Category } from "@/lib/api";
-import { useToast } from "@/components/ui/use-toast";
+import { getArticles } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import { useInView } from "react-intersection-observer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ITEMS_PER_PAGE = 10;
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { toast } = useToast();
   const { ref: loadMoreRef, inView } = useInView();
+  const isMobile = useIsMobile();
 
   const {
     data,
@@ -55,6 +59,20 @@ const Home = () => {
     }
   };
 
+  const allArticles = data?.pages.flatMap(page => page.articles) || [];
+
+  const handleNext = () => {
+    if (currentIndex < allArticles.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  };
+
   if (articlesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -65,8 +83,6 @@ const Home = () => {
       </div>
     );
   }
-
-  const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -85,24 +101,55 @@ const Home = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <PullToRefresh onRefresh={handleRefresh}>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {allArticles.map((article) => (
-              <NewsCard
-                key={article.id}
-                id={article.id}
-                title={article.title}
-                summary={article.summary}
-                imageUrl={article.image_url || "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"}
-                category={article.category?.name || "Uncategorized"}
-                date={new Date(article.published_at).toLocaleDateString()}
-                url={article.original_url}
-              />
-            ))}
-          </motion.div>
+          {isMobile ? (
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: 300 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -300 }}
+                  className="w-full"
+                >
+                  {allArticles[currentIndex] && (
+                    <NewsCard
+                      key={allArticles[currentIndex].id}
+                      {...allArticles[currentIndex]}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={handlePrevious}
+                  disabled={currentIndex === 0}
+                  className="p-2 bg-white rounded-full shadow-md disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  disabled={currentIndex === allArticles.length - 1}
+                  className="p-2 bg-white rounded-full shadow-md disabled:opacity-50"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col space-y-6"
+            >
+              {allArticles.map((article) => (
+                <NewsCard
+                  key={article.id}
+                  {...article}
+                />
+              ))}
+            </motion.div>
+          )}
           {hasNextPage && (
             <div ref={loadMoreRef} className="flex justify-center mt-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
