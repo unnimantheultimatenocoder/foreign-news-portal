@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsCardImage } from "./news/NewsCardImage";
 import { NewsCardContent } from "./news/NewsCardContent";
 import { NewsCardActions } from "./news/NewsCardActions";
+import { ShareMenu } from "./news/ShareMenu";
 
 interface NewsCardProps {
   id: string;
@@ -29,127 +30,78 @@ export const NewsCard = ({
   showDelete = false,
   onDelete
 }: NewsCardProps) => {
-  const [isSaved, setIsSaved] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const { toast } = useToast();
+  const [isSaved, setIsSaved] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const toast = useToast();
 
-  // Check if article is saved on component mount
   useEffect(() => {
-    const checkIfSaved = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase
+    const checkSavedStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: savedArticles } = await supabase
           .from('saved_articles')
-          .select('id')
-          .eq('article_id', id)
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error checking saved status:', error);
-          return;
-        }
-
-        setIsSaved(!!data);
-      } catch (error) {
-        console.error('Error checking saved status:', error);
+          .select('article_id')
+          .eq('user_id', user.id);
+        setIsSaved(savedArticles?.some(article => article.article_id === id));
       }
     };
-
-    checkIfSaved();
+    checkSavedStatus();
   }, [id]);
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title,
-          url,
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        toast({
-          title: "Link copied",
-          description: "The article link has been copied to your clipboard.",
-        });
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast({
-        title: "Error",
-        description: "Failed to share the article.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleSave = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "Please login to save articles",
-          variant: "destructive",
-        });
-        return;
-      }
-
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
       if (isSaved) {
-        const { error } = await supabase
+        await supabase
           .from('saved_articles')
           .delete()
-          .eq('article_id', id)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        
+          .eq('user_id', user.id)
+          .eq('article_id', id);
         setIsSaved(false);
         toast({
-          title: "Success",
-          description: "Article removed from saved articles",
+          title: "Removed from Saved Articles",
+          description: "This article has been removed from your saved articles.",
         });
       } else {
-        const { error } = await supabase
+        await supabase
           .from('saved_articles')
-          .insert([{ article_id: id, user_id: user.id }])
-          .select()
-          .maybeSingle();
-
-        if (error) {
-          // If it's a duplicate error, just update the UI state
-          if (error.code === '23505') {
-            setIsSaved(true);
-            toast({
-              title: "Info",
-              description: "Article was already saved",
-            });
-            return;
-          }
-          throw error;
-        }
-        
+          .insert({ user_id: user.id, article_id: id });
         setIsSaved(true);
         toast({
-          title: "Success",
-          description: "Article saved successfully",
+          title: "Saved Article",
+          description: "This article has been saved to your articles.",
         });
       }
-    } catch (error) {
-      console.error('Error saving article:', error);
+    } else {
       toast({
         title: "Error",
-        description: "Failed to save article",
-        variant: "destructive",
+        description: "You need to be logged in to save articles.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleDelete = async () => {
+  const handleShare = () => {
+    setShowShareMenu(true);
+  };
+
+  const handleDelete = () => {
     if (onDelete) {
       onDelete();
+    }
+  };
+
+  const handleReadMore = () => {
+    if (url) {
+      const properUrl = url.startsWith('http') ? url : `https://${url}`;
+      window.open(properUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      toast({
+        title: "Error",
+        description: "Article URL is not available",
+        variant: "destructive"
+      });
     }
   };
 
@@ -162,7 +114,7 @@ export const NewsCard = ({
       <NewsCardContent
         title={title}
         summary={summary}
-        source={category}
+        category={category}
         date={date}
         expanded={expanded}
         onToggleExpand={() => setExpanded(!expanded)}
@@ -171,10 +123,17 @@ export const NewsCard = ({
         onShare={handleShare}
         onSave={handleSave}
         onDelete={handleDelete}
-        onReadMore={() => window.open(url, '_blank')}
+        onReadMore={handleReadMore}
         isSaved={isSaved}
         showDelete={showDelete}
       />
+      {showShareMenu && (
+        <ShareMenu
+          url={url}
+          title={title}
+          onClose={() => setShowShareMenu(false)}
+        />
+      )}
     </motion.div>
   );
 };

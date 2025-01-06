@@ -13,6 +13,7 @@ import Tags from "./pages/admin/Tags";
 import Sources from "./pages/admin/Sources";
 import Settings from "./pages/admin/Settings";
 import AdminRoute from "./components/AdminRoute";
+import AdminCategories from "./pages/admin/Categories";
 
 export default function Routes() {
   return (
@@ -30,6 +31,7 @@ export default function Routes() {
         <Route path="articles" element={<Articles />} />
         <Route path="articles/new" element={<ArticleForm />} />
         <Route path="articles/:id/edit" element={<ArticleForm />} />
+        <Route path="categories" element={<AdminCategories />} />
         <Route path="users" element={<Users />} />
         <Route path="tags" element={<Tags />} />
         <Route path="sources" element={<Sources />} />
