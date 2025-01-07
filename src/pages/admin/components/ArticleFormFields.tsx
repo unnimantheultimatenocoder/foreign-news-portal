@@ -37,15 +37,16 @@ interface ArticleFormData {
 
 export interface ArticleFormFieldsProps {
   control: Control<ArticleFormData>;
-  categories: Category[];
+  categories?: Category[];
 }
 
-export function ArticleFormFields({ control, categories }: ArticleFormFieldsProps) {
+export function ArticleFormFields({ control, categories = [] }: ArticleFormFieldsProps) {
   return (
     <>
       <FormField
         control={control}
         name="title"
+        rules={{ required: "Title is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Title</FormLabel>
@@ -60,6 +61,7 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
       <FormField
         control={control}
         name="summary"
+        rules={{ required: "Summary is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Summary</FormLabel>
@@ -74,11 +76,12 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
       <FormField
         control={control}
         name="original_url"
+        rules={{ required: "Original URL is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Original URL</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="https://..." />
+              <Input {...field} placeholder="https://..." type="url" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -92,7 +95,7 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
           <FormItem>
             <FormLabel>Image URL (optional)</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="https://..." />
+              <Input {...field} placeholder="https://..." type="url" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -102,24 +105,50 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
       <FormField
         control={control}
         name="category_id"
+        rules={{ required: "Category is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Category</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              defaultValue={field.value}
-            >
+            <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
                 {categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
+                  <SelectItem 
+                    key={category.id} 
+                    value={category.id}
+                    className="cursor-pointer"
+                  >
                     {category.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="status"
+        rules={{ required: "Status is required" }}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Status</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />

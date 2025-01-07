@@ -37,7 +37,7 @@ export default function ArticleForm() {
     },
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -45,7 +45,10 @@ export default function ArticleForm() {
         .select('*')
         .order('name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+      }
       return data;
     }
   });
@@ -57,7 +60,7 @@ export default function ArticleForm() {
       
       const { data, error } = await supabase
         .from('articles')
-        .select()
+        .select('*')
         .eq('id', id)
         .maybeSingle();
       
@@ -77,7 +80,7 @@ export default function ArticleForm() {
         summary: article.summary,
         original_url: article.original_url,
         image_url: article.image_url || "",
-        category_id: article.category_id,
+        category_id: article.category_id || undefined,
         source: article.source,
         status: article.status,
       });
@@ -130,7 +133,11 @@ export default function ArticleForm() {
   };
 
   if (isEditing && isLoadingArticle) {
-    return <div className="flex items-center justify-center p-8">Loading...</div>;
+    return <div className="flex items-center justify-center p-8">Loading article...</div>;
+  }
+
+  if (isCategoriesLoading) {
+    return <div className="flex items-center justify-center p-8">Loading categories...</div>;
   }
 
   return (
@@ -141,7 +148,10 @@ export default function ArticleForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <ArticleFormFields control={form.control} categories={categories} />
+          <ArticleFormFields 
+            control={form.control} 
+            categories={categories} 
+          />
           
           <div className="flex gap-4">
             <Button type="submit" disabled={mutation.isPending}>
