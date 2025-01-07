@@ -6,6 +6,7 @@ import { NewsCardImage } from "./news/NewsCardImage";
 import { NewsCardContent } from "./news/NewsCardContent";
 import { NewsCardActions } from "./news/NewsCardActions";
 import { ShareMenu } from "./news/ShareMenu";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NewsCardProps {
   id: string;
@@ -34,6 +35,7 @@ export const NewsCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkSavedStatus = async () => {
@@ -51,14 +53,26 @@ export const NewsCard = ({
 
   const handleSave = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You need to be logged in to save articles.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Optimistically update the UI
+    setIsSaved(!isSaved);
+    
+    try {
       if (isSaved) {
         await supabase
           .from('saved_articles')
           .delete()
           .eq('user_id', user.id)
           .eq('article_id', id);
-        setIsSaved(false);
+
         toast({
           title: "Removed from Saved Articles",
           description: "This article has been removed from your saved articles.",
@@ -67,16 +81,21 @@ export const NewsCard = ({
         await supabase
           .from('saved_articles')
           .insert({ user_id: user.id, article_id: id });
-        setIsSaved(true);
+
         toast({
           title: "Saved Article",
           description: "This article has been saved to your articles.",
         });
       }
-    } else {
+
+      // Invalidate and refetch the saved articles query
+      queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
+    } catch (error) {
+      // Revert optimistic update on error
+      setIsSaved(!isSaved);
       toast({
         title: "Error",
-        description: "You need to be logged in to save articles.",
+        description: "Failed to update saved articles. Please try again.",
         variant: "destructive"
       });
     }
