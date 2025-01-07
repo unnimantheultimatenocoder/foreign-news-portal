@@ -49,12 +49,19 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         category: {
-          'global': '#4285F4',  // Blue
-          'jobs': '#34A853',    // Green
-          'education': '#FBBC05', // Yellow
-          'immigration': '#A142F4', // Purple
-          'tech': '#EA4335',    // Red
-        }
+          'global': '#4285F4',
+          'jobs': '#34A853',
+          'education': '#FBBC05',
+          'immigration': '#A142F4',
+          'tech': '#EA4335',
+        },
+        dark: {
+          bg: '#1A1F2C',
+          card: '#221F26',
+          accent: '#403E43',
+          text: '#FFFFFF',
+          muted: '#555555',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

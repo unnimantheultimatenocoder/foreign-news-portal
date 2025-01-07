@@ -46,18 +46,18 @@ const Index = () => {
   const articles = data?.pages.flatMap(page => page.articles) || [];
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-20">
+    <div className="min-h-screen bg-background pt-20 pb-20 dark:bg-dark-bg">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">
+        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
           Explore
         </h1>
         
         <div className="relative mb-8">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 dark:text-dark-muted" />
           <Input
             type="search"
             placeholder="Search for topics..."
-            className="pl-10"
+            className="pl-10 search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -74,28 +74,35 @@ const Index = () => {
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-[400px] bg-card animate-pulse rounded-xl" />
+              <div key={i} className="h-[400px] bg-card dark:bg-dark-card animate-pulse rounded-xl" />
             ))}
           </div>
         ) : (
           <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {articles.map((article) => (
-                <NewsCard
+                <motion.div
                   key={article.id}
-                  id={article.id}
-                  title={article.title}
-                  summary={article.summary}
-                  imageUrl={article.image_url || '/placeholder.svg'}
-                  category={article.category?.name || 'Uncategorized'}
-                  date={new Date(article.published_at).toLocaleDateString()}
-                  url={article.original_url}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="news-card"
+                >
+                  <NewsCard
+                    id={article.id}
+                    title={article.title}
+                    summary={article.summary}
+                    imageUrl={article.image_url || '/placeholder.svg'}
+                    category={article.category?.name || 'Uncategorized'}
+                    date={new Date(article.published_at).toLocaleDateString()}
+                    url={article.original_url}
+                  />
+                </motion.div>
               ))}
             </div>
             {hasNextPage && (
               <div ref={loadMoreRef} className="flex justify-center mt-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-dark-text" />
               </div>
             )}
           </>

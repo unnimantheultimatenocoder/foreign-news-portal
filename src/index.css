@@ -36,32 +36,32 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 230 24% 14%;
+    --foreground: 0 0% 100%;
 
-    --card: 217.2 32.6% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 225 12% 14%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 225 12% 14%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 225 12% 24%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 225 12% 24%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 225 12% 24%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 225 12% 24%;
+    --input: 225 12% 24%;
     --ring: 212.7 26.8% 83.9%;
   }
 }
@@ -74,4 +74,24 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.dark .news-card {
+  @apply bg-dark-card border-dark-accent/20 hover:border-dark-accent/40 transition-colors;
+}
+
+.dark .news-card-content {
+  @apply text-dark-text;
+}
+
+.dark .news-card-summary {
+  @apply text-dark-muted;
+}
+
+.dark .category-filter {
+  @apply bg-dark-bg border-dark-accent/20;
+}
+
+.dark .search-input {
+  @apply bg-dark-card border-dark-accent/20 text-dark-text placeholder:text-dark-muted;
 }
