@@ -37,8 +37,8 @@ export default function ArticleForm() {
     },
   });
 
-  // Fetch categories
-  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
+  // Fetch categories with better error handling
+  const { data: categories, isLoading: isCategoriesLoading, error: categoriesError } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       console.log('Fetching categories...');
@@ -51,8 +51,14 @@ export default function ArticleForm() {
         console.error('Error fetching categories:', error);
         throw error;
       }
-      console.log('Categories fetched:', data);
-      return data;
+      
+      if (!data || data.length === 0) {
+        console.log('No categories found');
+      } else {
+        console.log('Categories fetched:', data);
+      }
+      
+      return data || [];
     }
   });
 
@@ -92,6 +98,10 @@ export default function ArticleForm() {
 
   const mutation = useMutation({
     mutationFn: async (data: ArticleFormData) => {
+      if (!data.category_id) {
+        throw new Error('Category is required');
+      }
+
       if (isEditing && id) {
         const { data: result, error } = await supabase
           .from('articles')
@@ -136,6 +146,14 @@ export default function ArticleForm() {
     mutation.mutate(data);
   };
 
+  if (categoriesError) {
+    return (
+      <div className="flex items-center justify-center p-8 text-destructive">
+        Error loading categories: {categoriesError.message}
+      </div>
+    );
+  }
+
   if (isEditing && isLoadingArticle) {
     return <div className="flex items-center justify-center p-8">Loading article...</div>;
   }
@@ -154,7 +172,7 @@ export default function ArticleForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <ArticleFormFields 
             control={form.control} 
-            categories={categories} 
+            categories={categories || []} 
           />
           
           <div className="flex gap-4">

@@ -21,8 +21,6 @@ interface Category {
   name: string;
   slug: string;
   description?: string;
-  created_at: string;
-  updated_at: string;
 }
 
 interface ArticleFormData {
@@ -37,10 +35,12 @@ interface ArticleFormData {
 
 export interface ArticleFormFieldsProps {
   control: Control<ArticleFormData>;
-  categories?: Category[];
+  categories: Category[];
 }
 
-export function ArticleFormFields({ control, categories = [] }: ArticleFormFieldsProps) {
+export function ArticleFormFields({ control, categories }: ArticleFormFieldsProps) {
+  console.log('ArticleFormFields received categories:', categories);
+  
   return (
     <div className="space-y-6">
       <FormField
@@ -127,7 +127,10 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Category</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+            <Select 
+              onValueChange={field.onChange} 
+              value={field.value}
+            >
               <FormControl>
                 <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select a category" />
@@ -157,7 +160,11 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Status</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value} defaultValue="draft">
+            <Select 
+              onValueChange={field.onChange} 
+              value={field.value} 
+              defaultValue="draft"
+            >
               <FormControl>
                 <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select status" />
