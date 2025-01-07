@@ -42,7 +42,7 @@ export interface ArticleFormFieldsProps {
 
 export function ArticleFormFields({ control, categories = [] }: ArticleFormFieldsProps) {
   return (
-    <>
+    <div className="space-y-6">
       <FormField
         control={control}
         name="title"
@@ -51,7 +51,11 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
           <FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Article title" />
+              <Input 
+                {...field} 
+                placeholder="Article title" 
+                className="bg-background"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -66,7 +70,11 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
           <FormItem>
             <FormLabel>Summary</FormLabel>
             <FormControl>
-              <Textarea {...field} placeholder="Article summary" />
+              <Textarea 
+                {...field} 
+                placeholder="Article summary" 
+                className="min-h-[100px] bg-background"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -81,7 +89,12 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
           <FormItem>
             <FormLabel>Original URL</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="https://..." type="url" />
+              <Input 
+                {...field} 
+                placeholder="https://..." 
+                type="url" 
+                className="bg-background"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -95,7 +108,12 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
           <FormItem>
             <FormLabel>Image URL (optional)</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="https://..." type="url" />
+              <Input 
+                {...field} 
+                placeholder="https://..." 
+                type="url" 
+                className="bg-background"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -109,7 +127,7 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Category</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select a category" />
@@ -139,7 +157,7 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Status</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} value={field.value} defaultValue="draft">
               <FormControl>
                 <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select status" />
@@ -155,6 +173,6 @@ export function ArticleFormFields({ control, categories = [] }: ArticleFormField
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 }

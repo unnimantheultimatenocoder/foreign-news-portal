@@ -37,9 +37,11 @@ export default function ArticleForm() {
     },
   });
 
+  // Fetch categories
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
+      console.log('Fetching categories...');
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -49,6 +51,7 @@ export default function ArticleForm() {
         console.error('Error fetching categories:', error);
         throw error;
       }
+      console.log('Categories fetched:', data);
       return data;
     }
   });
@@ -129,6 +132,7 @@ export default function ArticleForm() {
   });
 
   const onSubmit = (data: ArticleFormData) => {
+    console.log('Submitting form with data:', data);
     mutation.mutate(data);
   };
 
@@ -142,7 +146,7 @@ export default function ArticleForm() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-2xl font-bold mb-6 text-foreground">
         {isEditing ? 'Edit Article' : 'Create New Article'}
       </h1>
 
@@ -154,13 +158,18 @@ export default function ArticleForm() {
           />
           
           <div className="flex gap-4">
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button 
+              type="submit" 
+              disabled={mutation.isPending}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
               {isEditing ? 'Update' : 'Create'} Article
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate('/admin/articles')}
+              className="bg-background"
             >
               Cancel
             </Button>
