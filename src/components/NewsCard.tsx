@@ -153,31 +153,39 @@ export const NewsCard = ({
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
+      className="overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200 relative"
+      style={{ 
+        maxHeight: expanded ? '2000px' : '500px', // Increased max height when expanded
+        transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother transition
+        willChange: 'max-height', // Optimize performance
+        overflowY: expanded ? 'visible' : 'hidden' // Allow content to be visible when expanded
+      }}
     >
-      <NewsCardImage imageUrl={imageUrl} title={title} />
-      <NewsCardContent
-        title={title}
-        summary={summary}
-        source={category}
-        date={date}
-        expanded={expanded}
-        onToggleExpand={() => setExpanded(!expanded)}
-      />
-      <NewsCardActions
-        onShare={handleShare}
-        onSave={handleSave}
-        onDelete={handleDelete}
-        onReadMore={handleReadMore}
-        isSaved={isSaved}
-        showDelete={showDelete}
-      />
-      {showShareMenu && (
-        <ShareMenu
-          url={url}
+      <div className={`relative ${expanded ? 'z-10' : ''}`}>
+        <NewsCardImage imageUrl={imageUrl} title={title} />
+        <NewsCardContent
           title={title}
+          summary={summary}
+          source={category}
+          date={date}
+          expanded={expanded}
+          onToggleExpand={() => setExpanded(!expanded)}
         />
-      )}
+        <NewsCardActions
+          onShare={handleShare}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onReadMore={handleReadMore}
+          isSaved={isSaved}
+          showDelete={showDelete}
+        />
+        {showShareMenu && (
+          <ShareMenu
+            url={url}
+            title={title}
+          />
+        )}
+      </div>
     </motion.div>
   );
 };

@@ -29,16 +29,15 @@ export const TopNav = () => {
   });
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-md py-4 px-4 z-50 border-b border-border">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">News Feed</h1>
-        
+    <nav className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-md z-50 border-b border-border">
+      <div className="max-w-7xl mx-auto flex justify-between items-center h-12 px-3 sm:px-4">
+        <h1 className="text-lg sm:text-xl font-bold">News Feed</h1>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Menu className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -72,6 +71,7 @@ export const TopNav = () => {
           </DropdownMenu>
         </div>
       </div>
-    </div>
+    </nav>
+
   );
 };
