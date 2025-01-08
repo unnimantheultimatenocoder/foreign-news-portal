@@ -95,10 +95,10 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-black dark:text-white">Global News</h1>
+    <div className="min-h-screen bg-background dark:bg-[#121620] pb-20">
+      <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-foreground">Global News</h1>
           <CategoryFilter
             selectedCategory={selectedCategory || "All"}
             onSelectCategory={(category) =>
@@ -109,7 +109,7 @@ const Home = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto px-4 py-6">
         <PullToRefresh onRefresh={handleRefresh}>
           {isMobile ? (
             <div className="relative">
@@ -133,14 +133,14 @@ const Home = () => {
                 <button
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}
-                  className="p-2 bg-white rounded-full shadow-md disabled:opacity-50"
+                  className="p-2 bg-background dark:bg-[#1A1F2C] rounded-full shadow-md disabled:opacity-50"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={handleNext}
                   disabled={currentIndex === allArticles.length - 1}
-                  className="p-2 bg-white rounded-full shadow-md disabled:opacity-50"
+                  className="p-2 bg-background dark:bg-[#1A1F2C] rounded-full shadow-md disabled:opacity-50"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </button>
@@ -150,7 +150,7 @@ const Home = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col space-y-6"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               {allArticles.map((article) => (
                 <NewsCard

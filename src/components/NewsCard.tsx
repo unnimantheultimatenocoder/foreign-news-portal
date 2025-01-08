@@ -153,7 +153,7 @@ export const NewsCard = ({
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="overflow-hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm"
+      className="overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
     >
       <NewsCardImage imageUrl={imageUrl} title={title} />
       <NewsCardContent
