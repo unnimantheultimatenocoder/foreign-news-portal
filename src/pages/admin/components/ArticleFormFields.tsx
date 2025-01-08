@@ -15,6 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
   id: string;
@@ -39,7 +43,44 @@ export interface ArticleFormFieldsProps {
 }
 
 export function ArticleFormFields({ control, categories }: ArticleFormFieldsProps) {
-  console.log('ArticleFormFields received categories:', categories);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
+    try {
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      const file = event.target.files[0];
+      setUploading(true);
+
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload the file to Supabase storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('article_images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('article_images')
+        .getPublicUrl(filePath);
+
+      // Update the form
+      onChange(publicUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -106,15 +147,41 @@ export function ArticleFormFields({ control, categories }: ArticleFormFieldsProp
         name="image_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Image URL (optional)</FormLabel>
-            <FormControl>
-              <Input 
-                {...field} 
-                placeholder="https://..." 
-                type="url" 
-                className="bg-background"
-              />
-            </FormControl>
+            <FormLabel>Image</FormLabel>
+            <div className="space-y-2">
+              <FormControl>
+                <Input 
+                  {...field} 
+                  placeholder="https://... or upload an image" 
+                  type="url" 
+                  className="bg-background"
+                />
+              </FormControl>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="relative"
+                  disabled={uploading}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={(e) => handleImageUpload(e, field.onChange)}
+                  />
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploading ? 'Uploading...' : 'Upload Image'}
+                </Button>
+                {field.value && (
+                  <img 
+                    src={field.value} 
+                    alt="Preview" 
+                    className="w-20 h-20 object-cover rounded-md"
+                  />
+                )}
+              </div>
+            </div>
             <FormMessage />
           </FormItem>
         )}
