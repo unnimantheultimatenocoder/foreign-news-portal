@@ -23,7 +23,7 @@ export const NewsCardActions = ({
       <Button
         variant="outline"
         size="sm"
-        className="flex-1 bg-white dark:bg-gray-900"
+        className="flex-1 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onReadMore}
       >
         <ExternalLink className="w-4 h-4 mr-2" />
@@ -32,7 +32,7 @@ export const NewsCardActions = ({
       <Button
         variant="outline"
         size="icon"
-        className="bg-white dark:bg-gray-900"
+        className="dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onShare}
       >
         <Share2 className="w-4 h-4" />
@@ -40,7 +40,9 @@ export const NewsCardActions = ({
       <Button
         variant={isSaved ? "default" : "outline"}
         size="icon"
-        className={isSaved ? "bg-red-500 hover:bg-red-600" : "bg-white dark:bg-gray-900"}
+        className={isSaved ? 
+          "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" : 
+          "dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"}
         onClick={onSave}
       >
         <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
@@ -49,10 +51,10 @@ export const NewsCardActions = ({
         <Button
           variant="outline"
           size="icon"
-          className="bg-white dark:bg-gray-900 hover:bg-red-50 dark:hover:bg-red-950"
+          className="dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30 dark:border-gray-700"
           onClick={onDelete}
         >
-          <Trash2 className="w-4 h-4 text-red-500" />
+          <Trash2 className="w-4 h-4" />
         </Button>
       )}
     </div>
