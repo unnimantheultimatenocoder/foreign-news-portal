@@ -44,9 +44,22 @@ const Profile = () => {
         .from('profiles')
         .select('*')
         .eq('id', session?.user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        // If no profile exists, try to create one
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([{ id: session?.user?.id }])
+          .select()
+          .maybeSingle();
+
+        if (createError) throw createError;
+        return newProfile;
+      }
+
       return data;
     },
     retry: false,
@@ -55,7 +68,7 @@ const Profile = () => {
         console.error('Profile error:', error);
         toast({
           title: "Profile Error",
-          description: "There was an error loading your profile.",
+          description: "There was an error loading your profile. Please try refreshing the page.",
           variant: "destructive",
         });
       }
