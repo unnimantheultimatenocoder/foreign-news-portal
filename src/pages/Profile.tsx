@@ -22,6 +22,18 @@ const Profile = () => {
       if (error) throw error;
       return session;
     },
+    retry: false,
+    meta: {
+      errorHandler: (error) => {
+        console.error('Session error:', error);
+        toast({
+          title: "Session Error",
+          description: "There was an error loading your session. Please try logging in again.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
+    }
   });
 
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -37,18 +49,37 @@ const Profile = () => {
       if (error) throw error;
       return data;
     },
+    retry: false,
+    meta: {
+      errorHandler: (error) => {
+        console.error('Profile error:', error);
+        toast({
+          title: "Profile Error",
+          description: "There was an error loading your profile.",
+          variant: "destructive",
+        });
+      }
+    }
   });
 
   useEffect(() => {
-    if (!sessionLoading && !session) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to view your profile",
-        variant: "destructive",
+    const setupAuthListener = () => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+        if (event === 'SIGNED_OUT' || (!currentSession && !sessionLoading)) {
+          navigate('/auth');
+        }
       });
-      navigate('/auth');
-    }
-  }, [session, sessionLoading, navigate, toast]);
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    const unsubscribe = setupAuthListener();
+    return () => {
+      unsubscribe();
+    };
+  }, [navigate, sessionLoading]);
 
   if (sessionLoading || profileLoading) {
     return (
@@ -61,7 +92,7 @@ const Profile = () => {
     );
   }
 
-  if (!session || !profile) {
+  if (!session?.user) {
     return null;
   }
 
