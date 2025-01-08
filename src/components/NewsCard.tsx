@@ -7,6 +7,7 @@ import { NewsCardContent } from "./news/NewsCardContent";
 import { NewsCardActions } from "./news/NewsCardActions";
 import { ShareMenu } from "./news/ShareMenu";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface NewsCardProps {
   id: string;
@@ -36,6 +37,7 @@ export const NewsCard = ({
   const [showShareMenu, setShowShareMenu] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSavedStatus = async () => {
@@ -45,7 +47,9 @@ export const NewsCard = ({
           .from('saved_articles')
           .select('article_id')
           .eq('user_id', user.id);
-        setIsSaved(savedArticles?.some(article => article.article_id === id));
+        setIsSaved(savedArticles?.some(article => article.article_id === id) || false);
+      } else {
+        setIsSaved(false);
       }
     };
     checkSavedStatus();
@@ -55,10 +59,11 @@ export const NewsCard = ({
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast({
-        title: "Error",
-        description: "You need to be logged in to save articles.",
-        variant: "destructive"
+        title: "Login Required",
+        description: "Please log in to save articles.",
+        variant: "default"
       });
+      navigate('/auth');
       return;
     }
 
