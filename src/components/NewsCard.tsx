@@ -41,66 +41,87 @@ export const NewsCard = ({
 
   useEffect(() => {
     const checkSavedStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: savedArticles } = await supabase
-          .from('saved_articles')
-          .select('article_id')
-          .eq('user_id', user.id);
-        setIsSaved(savedArticles?.some(article => article.article_id === id) || false);
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: savedArticles, error } = await supabase
+            .from('saved_articles')
+            .select('article_id')
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error('Error checking saved status:', error);
+            return;
+          }
+          
+          setIsSaved(savedArticles?.some(article => article.article_id === id) || false);
+        } else {
+          setIsSaved(false);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
         setIsSaved(false);
       }
     };
+    
     checkSavedStatus();
   }, [id]);
 
   const handleSave = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to save articles.",
-        variant: "default"
-      });
-      navigate('/auth');
-      return;
-    }
-
-    // Optimistically update the UI
-    setIsSaved(!isSaved);
-    
     try {
-      if (isSaved) {
-        await supabase
-          .from('saved_articles')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('article_id', id);
-
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
         toast({
-          title: "Removed from Saved Articles",
-          description: "This article has been removed from your saved articles.",
+          title: "Login Required",
+          description: "Please log in to save articles.",
+          variant: "default"
         });
-      } else {
-        await supabase
-          .from('saved_articles')
-          .insert({ user_id: user.id, article_id: id });
-
-        toast({
-          title: "Saved Article",
-          description: "This article has been saved to your articles.",
-        });
+        navigate('/auth');
+        return;
       }
 
-      // Invalidate and refetch the saved articles query
-      queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
-    } catch (error) {
-      // Revert optimistic update on error
+      // Optimistically update the UI
       setIsSaved(!isSaved);
+      
+      try {
+        if (isSaved) {
+          await supabase
+            .from('saved_articles')
+            .delete()
+            .eq('user_id', session.user.id)
+            .eq('article_id', id);
+
+          toast({
+            title: "Removed from Saved Articles",
+            description: "This article has been removed from your saved articles.",
+          });
+        } else {
+          await supabase
+            .from('saved_articles')
+            .insert({ user_id: session.user.id, article_id: id });
+
+          toast({
+            title: "Saved Article",
+            description: "This article has been saved to your articles.",
+          });
+        }
+
+        // Invalidate and refetch the saved articles query
+        queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
+      } catch (error) {
+        // Revert optimistic update on error
+        setIsSaved(!isSaved);
+        toast({
+          title: "Error",
+          description: "Failed to update saved articles. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error handling save:', error);
       toast({
         title: "Error",
-        description: "Failed to update saved articles. Please try again.",
+        description: "An error occurred. Please try again.",
         variant: "destructive"
       });
     }
