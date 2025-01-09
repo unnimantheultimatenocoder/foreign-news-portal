@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useAnimation, PanInfo } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsCardImage } from "./news/NewsCardImage";
@@ -19,6 +19,7 @@ interface NewsCardProps {
   url: string;
   showDelete?: boolean;
   onDelete?: () => void;
+  onSwipe?: (direction: "left" | "right") => void;
 }
 
 export const NewsCard = ({
@@ -30,11 +31,13 @@ export const NewsCard = ({
   date,
   url,
   showDelete = false,
-  onDelete
+  onDelete,
+  onSwipe
 }: NewsCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const controls = useAnimation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -147,9 +150,30 @@ export const NewsCard = ({
     }
   };
 
+  const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const swipeThreshold = 100;
+    const direction = info.offset.x > 0 ? "right" : "left";
+    
+    if (Math.abs(info.offset.x) > swipeThreshold && onSwipe) {
+      await controls.start({
+        x: info.offset.x > 0 ? 300 : -300,
+        opacity: 0,
+        transition: { duration: 0.3 }
+      });
+      onSwipe(direction);
+    } else {
+      controls.start({ x: 0, opacity: 1 });
+    }
+  };
+
   return (
     <motion.div
-      whileHover={{ y: -5 }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
+      onDragEnd={handleDragEnd}
+      animate={controls}
+      initial={{ x: 0, opacity: 1 }}
       className="flex flex-col h-full overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
     >
       <div className="flex-none">

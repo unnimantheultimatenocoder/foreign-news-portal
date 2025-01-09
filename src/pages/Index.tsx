@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 import { getArticles } from "@/lib/api";
 import { NewsCard } from "@/components/NewsCard";
@@ -8,12 +8,15 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Input } from "@/components/ui/input";
 import { useInView } from "react-intersection-observer";
+import { useToast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 20;
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { ref: loadMoreRef, inView } = useInView();
+  const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+  const { toast } = useToast();
 
   const {
     data,
@@ -44,6 +47,22 @@ const Index = () => {
   }, [inView, hasNextPage, fetchNextPage]);
 
   const articles = data?.pages.flatMap(page => page.articles) || [];
+
+  const handleSwipe = (direction: "left" | "right") => {
+    if (direction === "right" && currentArticleIndex > 0) {
+      setCurrentArticleIndex(prev => prev - 1);
+      toast({
+        title: "Previous Article",
+        description: "Showing the previous article",
+      });
+    } else if (direction === "left" && currentArticleIndex < articles.length - 1) {
+      setCurrentArticleIndex(prev => prev + 1);
+      toast({
+        title: "Next Article",
+        description: "Showing the next article",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pt-20 pb-20 dark:bg-dark-bg">
@@ -80,25 +99,29 @@ const Index = () => {
         ) : (
           <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {articles.map((article) => (
-                <motion.div
-                  key={article.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="news-card"
-                >
-                  <NewsCard
-                    id={article.id}
-                    title={article.title}
-                    summary={article.summary}
-                    imageUrl={article.image_url || '/placeholder.svg'}
-                    category={article.category?.name || 'Uncategorized'}
-                    date={new Date(article.published_at).toLocaleDateString()}
-                    url={article.original_url}
-                  />
-                </motion.div>
-              ))}
+              <AnimatePresence mode="wait">
+                {articles.map((article, index) => (
+                  <motion.div
+                    key={article.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -300 }}
+                    transition={{ duration: 0.3 }}
+                    className="news-card"
+                  >
+                    <NewsCard
+                      id={article.id}
+                      title={article.title}
+                      summary={article.summary}
+                      imageUrl={article.image_url || '/placeholder.svg'}
+                      category={article.category?.name || 'Uncategorized'}
+                      date={new Date(article.published_at).toLocaleDateString()}
+                      url={article.original_url}
+                      onSwipe={handleSwipe}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
             {hasNextPage && (
               <div ref={loadMoreRef} className="flex justify-center mt-8">
