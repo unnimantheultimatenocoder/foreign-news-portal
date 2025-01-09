@@ -65,13 +65,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-14 pb-16 dark:bg-dark-bg">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+    <div className="min-h-screen bg-background pt-20 pb-20 dark:bg-dark-bg">
+      <div className="max-w-7xl mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
           Explore
         </h1>
         
-        <div className="relative">
+        <div className="relative mb-8">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 dark:text-dark-muted" />
           <Input
             type="search"
@@ -82,7 +82,7 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
           <CategoryCard type="global" title="Global News" />
           <CategoryCard type="jobs" title="Jobs" />
           <CategoryCard type="education" title="Education" />
@@ -91,14 +91,14 @@ const Index = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="h-[400px] bg-card dark:bg-dark-card animate-pulse rounded-xl" />
             ))}
           </div>
         ) : (
           <>
-            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="wait">
                 {articles.map((article, index) => (
                   <motion.div
@@ -124,7 +124,7 @@ const Index = () => {
               </AnimatePresence>
             </div>
             {hasNextPage && (
-              <div ref={loadMoreRef} className="flex justify-center mt-4">
+              <div ref={loadMoreRef} className="flex justify-center mt-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-dark-text" />
               </div>
             )}

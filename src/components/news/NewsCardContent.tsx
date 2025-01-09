@@ -18,8 +18,8 @@ export const NewsCardContent = ({
   onToggleExpand 
 }: NewsCardContentProps) => {
   return (
-    <div className="flex flex-col flex-grow space-y-2">
-      <h3 className="text-base sm:text-lg font-semibold line-clamp-2 dark:text-gray-100">
+    <div className="p-4 flex flex-col flex-grow">
+      <h3 className="text-lg font-semibold mb-2 line-clamp-2 dark:text-gray-100">
         {title}
       </h3>
       <div 
@@ -34,7 +34,7 @@ export const NewsCardContent = ({
           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-[#1A1F2C] to-transparent" />
         )}
       </div>
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <div className="flex items-center gap-2">
           <span>{source}</span>
           <span>•</span>
