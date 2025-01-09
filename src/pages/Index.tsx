@@ -98,33 +98,33 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
               <AnimatePresence mode="wait">
-                {articles.map((article, index) => (
+                {articles[currentArticleIndex] && (
                   <motion.div
-                    key={article.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    key={articles[currentArticleIndex].id}
+                    initial={{ opacity: 0, x: 300 }}
+                    animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -300 }}
                     transition={{ duration: 0.3 }}
-                    className="relative"
+                    className="h-full"
                   >
                     <NewsCard
-                      id={article.id}
-                      title={article.title}
-                      summary={article.summary}
-                      imageUrl={article.image_url || '/placeholder.svg'}
-                      category={article.category?.name || 'Uncategorized'}
-                      date={new Date(article.published_at).toLocaleDateString()}
-                      url={article.original_url}
+                      id={articles[currentArticleIndex].id}
+                      title={articles[currentArticleIndex].title}
+                      summary={articles[currentArticleIndex].summary}
+                      imageUrl={articles[currentArticleIndex].image_url || '/placeholder.svg'}
+                      category={articles[currentArticleIndex].category?.name || 'Uncategorized'}
+                      date={new Date(articles[currentArticleIndex].published_at).toLocaleDateString()}
+                      url={articles[currentArticleIndex].original_url}
                       onSwipe={handleSwipe}
                     />
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
             {hasNextPage && (
-              <div ref={loadMoreRef} className="flex justify-center mt-4 mb-16">
+              <div ref={loadMoreRef} className="flex justify-center mt-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-dark-text" />
               </div>
             )}

@@ -64,7 +64,7 @@ export const NewsCard = ({
       onDragEnd={handleDragEnd}
       animate={controls}
       initial={{ x: 0, opacity: 1 }}
-      className="flex flex-col h-full overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200 mb-4 sm:mb-0"
+      className="flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
     >
       <NewsCardImage imageUrl={imageUrl} title={title} />
       
