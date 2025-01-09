@@ -19,11 +19,11 @@ export const NewsCardActions = ({
   showDelete = false
 }: NewsCardActionsProps) => {
   return (
-    <div className="p-4 pt-0 grid grid-cols-[1fr,auto,auto] gap-2 items-center">
+    <div className="flex items-center gap-2 mt-auto pt-2">
       <Button
         variant="outline"
         size="sm"
-        className="w-full text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
+        className="flex-1 text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onReadMore}
       >
         <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
