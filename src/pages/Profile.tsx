@@ -15,41 +15,11 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check session on mount and set up listener
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (!session || error) {
-        navigate('/auth');
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/auth');
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
-
   const { data: session, isLoading: sessionLoading } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        throw error;
-      }
-      if (!session) {
-        navigate('/auth');
-        return null;
-      }
+      if (error) throw error;
       return session;
     },
     retry: false,
