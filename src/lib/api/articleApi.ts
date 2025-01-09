@@ -5,20 +5,21 @@ import { AppError } from "../errors";
 const sanitizeUrl = (url: string): string => {
   if (!url) return '';
   
-  // Remove any trailing colons and ensure proper URL format
-  let sanitized = url.trim()
-    .replace(/:[/]+/g, '://') // Fix protocol separator
-    .replace(/([^:])\/+/g, '$1/') // Remove duplicate slashes
-    .replace(/:+$/, ''); // Remove trailing colons
-  
-  // Ensure the URL has a proper protocol
-  if (!sanitized.startsWith('http://') && !sanitized.startsWith('https://')) {
-    sanitized = `https://${sanitized}`;
-  }
-  
   try {
-    new URL(sanitized); // Validate URL format
-    return sanitized;
+    // Remove leading/trailing whitespace
+    let sanitized = url.trim();
+    
+    // Remove any trailing colons
+    sanitized = sanitized.replace(/:+$/, '');
+    
+    // Ensure proper protocol
+    if (!sanitized.match(/^https?:\/\//i)) {
+      sanitized = `https://${sanitized}`;
+    }
+    
+    // Validate URL format
+    const urlObject = new URL(sanitized);
+    return urlObject.toString();
   } catch (error) {
     console.error('Invalid URL:', url, error);
     return '';
@@ -126,29 +127,21 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       shares:saved_articles(id)
     `);
 
-  // First get the data without ordering to calculate trending scores
   const { data: rawData, error } = await query;
   if (error) throw error;
 
-  // Calculate trending scores and sort the data in memory
-  const articlesWithScores = rawData?.map(article => {
-    const savesCount = Array.isArray(article.saves) ? article.saves.length : 0;
-    const sharesCount = Array.isArray(article.shares) ? article.shares.length : 0;
-    
-    return {
-      ...article,
-      saves_count: savesCount,
-      shares_count: sharesCount,
-      trending_score: savesCount + sharesCount
-    };
-  }) || [];
+  const articlesWithScores = rawData?.map(article => ({
+    ...article,
+    original_url: sanitizeUrl(article.original_url),
+    image_url: sanitizeUrl(article.image_url),
+    saves_count: Array.isArray(article.saves) ? article.saves.length : 0,
+    shares_count: Array.isArray(article.shares) ? article.shares.length : 0,
+    trending_score: Array.isArray(article.saves) ? article.saves.length + (Array.isArray(article.shares) ? article.shares.length : 0) : 0
+  })) || [];
 
-  // Sort the data based on the type
   let sortedData = [...articlesWithScores];
   switch (type) {
     case 'editors':
-      // For editors' picks, we would need to add an is_editors_pick column
-      // For now, just return the most saved articles
       sortedData.sort((a, b) => b.saves_count - a.saves_count);
       break;
     case 'shared':
@@ -160,7 +153,6 @@ export const getTrendingArticles = async (type: 'trending' | 'editors' | 'shared
       break;
   }
 
-  // Return only the requested number of articles
   return sortedData.slice(0, limit) as (Article & { 
     category: Category; 
     saves_count: number;
@@ -180,6 +172,12 @@ export const getArticleById = async (id: string) => {
     .single();
 
   if (error) throw error;
+  
+  if (data) {
+    data.original_url = sanitizeUrl(data.original_url);
+    data.image_url = sanitizeUrl(data.image_url);
+  }
+  
   return data as Article & { category: Category };
 };
 
@@ -197,5 +195,10 @@ export const getSimilarArticles = async (articleId: string, limit = 3) => {
     .limit(limit);
 
   if (error) throw error;
-  return data as (Article & { category: Category })[];
+
+  return (data as (Article & { category: Category })[]).map(article => ({
+    ...article,
+    original_url: sanitizeUrl(article.original_url),
+    image_url: sanitizeUrl(article.image_url),
+  }));
 };
