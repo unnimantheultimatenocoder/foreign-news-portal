@@ -65,8 +65,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-14 pb-16 dark:bg-dark-bg">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-6">
+    <div className="min-h-screen bg-background pt-12 pb-20 dark:bg-dark-bg">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-4 sm:space-y-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
           Explore
         </h1>
@@ -98,7 +98,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="wait">
                 {articles.map((article, index) => (
                   <motion.div
@@ -107,7 +107,7 @@ const Index = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -300 }}
                     transition={{ duration: 0.3 }}
-                    className="news-card"
+                    className="relative"
                   >
                     <NewsCard
                       id={article.id}
@@ -124,7 +124,7 @@ const Index = () => {
               </AnimatePresence>
             </div>
             {hasNextPage && (
-              <div ref={loadMoreRef} className="flex justify-center mt-4">
+              <div ref={loadMoreRef} className="flex justify-center mt-4 mb-16">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-dark-text" />
               </div>
             )}

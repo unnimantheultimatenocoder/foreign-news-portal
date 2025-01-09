@@ -24,7 +24,7 @@ export const NewsCardContent = ({
       </h3>
       <div 
         className={`relative transition-all duration-300 ease-in-out ${
-          expanded ? 'max-h-[1000px]' : 'max-h-[4.5em] overflow-hidden'
+          expanded ? 'max-h-[1000px] mb-2' : 'max-h-[4.5em] overflow-hidden'
         }`}
       >
         <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -43,7 +43,7 @@ export const NewsCardContent = ({
         {onToggleExpand && summary.length > 200 && (
           <button
             onClick={onToggleExpand}
-            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors py-1"
             aria-label={expanded ? "Show less" : "Read more"}
           >
             <span className="text-xs">{expanded ? "Show less" : "Read more"}</span>
