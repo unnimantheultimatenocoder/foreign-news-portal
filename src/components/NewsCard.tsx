@@ -66,11 +66,9 @@ export const NewsCard = ({
       initial={{ x: 0, opacity: 1 }}
       className="flex flex-col h-full overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      <div className="flex-none">
-        <NewsCardImage imageUrl={imageUrl} title={title} />
-      </div>
+      <NewsCardImage imageUrl={imageUrl} title={title} />
       
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-col flex-grow p-3 sm:p-4 space-y-3">
         <NewsCardContent
           title={title}
           summary={summary}
@@ -80,16 +78,14 @@ export const NewsCard = ({
           onToggleExpand={() => setExpanded(!expanded)}
         />
         
-        <div className="mt-auto">
-          <NewsCardActions
-            onShare={handleShare}
-            onSave={handleSave}
-            onDelete={onDelete}
-            onReadMore={handleReadMore}
-            isSaved={isSaved}
-            showDelete={showDelete}
-          />
-        </div>
+        <NewsCardActions
+          onShare={handleShare}
+          onSave={handleSave}
+          onDelete={onDelete}
+          onReadMore={handleReadMore}
+          isSaved={isSaved}
+          showDelete={showDelete}
+        />
       </div>
       
       {showShareMenu && (
