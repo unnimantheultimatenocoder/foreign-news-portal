@@ -80,7 +80,6 @@ export const NewsCard = ({
         return;
       }
 
-      // Optimistically update the UI
       setIsSaved(!isSaved);
       
       try {
@@ -106,10 +105,8 @@ export const NewsCard = ({
           });
         }
 
-        // Invalidate and refetch the saved articles query
         queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
       } catch (error) {
-        // Revert optimistic update on error
         setIsSaved(!isSaved);
         toast({
           title: "Error",
@@ -153,16 +150,13 @@ export const NewsCard = ({
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200 relative"
-      style={{ 
-        maxHeight: expanded ? '2000px' : '500px', // Increased max height when expanded
-        transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother transition
-        willChange: 'max-height', // Optimize performance
-        overflowY: expanded ? 'visible' : 'hidden' // Allow content to be visible when expanded
-      }}
+      className="flex flex-col h-full overflow-hidden bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      <div className={`relative ${expanded ? 'z-10' : ''}`}>
+      <div className="flex-none">
         <NewsCardImage imageUrl={imageUrl} title={title} />
+      </div>
+      
+      <div className="flex flex-col flex-grow">
         <NewsCardContent
           title={title}
           summary={summary}
@@ -171,21 +165,25 @@ export const NewsCard = ({
           expanded={expanded}
           onToggleExpand={() => setExpanded(!expanded)}
         />
-        <NewsCardActions
-          onShare={handleShare}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          onReadMore={handleReadMore}
-          isSaved={isSaved}
-          showDelete={showDelete}
-        />
-        {showShareMenu && (
-          <ShareMenu
-            url={url}
-            title={title}
+        
+        <div className="mt-auto">
+          <NewsCardActions
+            onShare={handleShare}
+            onSave={handleSave}
+            onDelete={handleDelete}
+            onReadMore={handleReadMore}
+            isSaved={isSaved}
+            showDelete={showDelete}
           />
-        )}
+        </div>
       </div>
+      
+      {showShareMenu && (
+        <ShareMenu
+          url={url}
+          title={title}
+        />
+      )}
     </motion.div>
   );
 };
