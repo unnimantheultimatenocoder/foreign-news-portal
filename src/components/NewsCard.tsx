@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { motion, useAnimation, PanInfo } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { NewsCardImage } from "./news/NewsCardImage";
 import { NewsCardContent } from "./news/NewsCardContent";
 import { NewsCardActions } from "./news/NewsCardActions";
 import { ShareMenu } from "./news/ShareMenu";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
+import { useSaveArticle } from "@/hooks/use-save-article";
 
 interface NewsCardProps {
   id: string;
@@ -35,106 +34,13 @@ export const NewsCard = ({
   onSwipe
 }: NewsCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const controls = useAnimation();
+  const { controls, handleDragEnd } = useSwipeGesture({ onSwipe });
+  const { isSaved, handleSave } = useSaveArticle(id);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkSavedStatus = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data: savedArticles, error } = await supabase
-            .from('saved_articles')
-            .select('article_id')
-            .eq('user_id', session.user.id);
-            
-          if (error) {
-            console.error('Error checking saved status:', error);
-            return;
-          }
-          
-          setIsSaved(savedArticles?.some(article => article.article_id === id) || false);
-        } else {
-          setIsSaved(false);
-        }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-        setIsSaved(false);
-      }
-    };
-    
-    checkSavedStatus();
-  }, [id]);
-
-  const handleSave = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        toast({
-          title: "Login Required",
-          description: "Please log in to save articles.",
-          variant: "default"
-        });
-        navigate('/auth');
-        return;
-      }
-
-      setIsSaved(!isSaved);
-      
-      try {
-        if (isSaved) {
-          await supabase
-            .from('saved_articles')
-            .delete()
-            .eq('user_id', session.user.id)
-            .eq('article_id', id);
-
-          toast({
-            title: "Removed from Saved Articles",
-            description: "This article has been removed from your saved articles.",
-          });
-        } else {
-          await supabase
-            .from('saved_articles')
-            .insert({ user_id: session.user.id, article_id: id });
-
-          toast({
-            title: "Saved Article",
-            description: "This article has been saved to your articles.",
-          });
-        }
-
-        queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
-      } catch (error) {
-        setIsSaved(!isSaved);
-        toast({
-          title: "Error",
-          description: "Failed to update saved articles. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error handling save:', error);
-      toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleShare = () => {
     setShowShareMenu(true);
-  };
-
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete();
-    }
   };
 
   const handleReadMore = () => {
@@ -147,22 +53,6 @@ export const NewsCard = ({
         description: "Article URL is not available",
         variant: "destructive"
       });
-    }
-  };
-
-  const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 100;
-    const direction = info.offset.x > 0 ? "right" : "left";
-    
-    if (Math.abs(info.offset.x) > swipeThreshold && onSwipe) {
-      await controls.start({
-        x: info.offset.x > 0 ? 300 : -300,
-        opacity: 0,
-        transition: { duration: 0.3 }
-      });
-      onSwipe(direction);
-    } else {
-      controls.start({ x: 0, opacity: 1 });
     }
   };
 
@@ -194,7 +84,7 @@ export const NewsCard = ({
           <NewsCardActions
             onShare={handleShare}
             onSave={handleSave}
-            onDelete={handleDelete}
+            onDelete={onDelete}
             onReadMore={handleReadMore}
             isSaved={isSaved}
             showDelete={showDelete}
