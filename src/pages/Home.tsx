@@ -95,9 +95,9 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#121620] pb-20">
+    <div className="min-h-screen bg-background dark:bg-[#121620] pb-16">
       <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="max-w-5xl mx-auto px-4 py-3">
           <h1 className="text-2xl font-bold text-foreground">Global News</h1>
           <CategoryFilter
             selectedCategory={selectedCategory || "All"}
@@ -109,7 +109,7 @@ const Home = () => {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto px-4 py-4">
         <PullToRefresh onRefresh={handleRefresh}>
           {isMobile ? (
             <div className="relative">
@@ -129,7 +129,7 @@ const Home = () => {
                   )}
                 </motion.div>
               </AnimatePresence>
-              <div className="flex justify-between mt-4">
+              <div className="flex justify-between mt-3">
                 <button
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}
@@ -150,7 +150,7 @@ const Home = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               {allArticles.map((article) => (
                 <NewsCard
@@ -161,7 +161,7 @@ const Home = () => {
             </motion.div>
           )}
           {hasNextPage && (
-            <div ref={loadMoreRef} className="flex justify-center mt-8">
+            <div ref={loadMoreRef} className="flex justify-center mt-6">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
             </div>
           )}
