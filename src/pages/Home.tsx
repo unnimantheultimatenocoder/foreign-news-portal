@@ -16,6 +16,7 @@ const ITEMS_PER_PAGE = 10;
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
   const { ref: loadMoreRef, inView } = useInView();
   const isMobile = useIsMobile();
@@ -61,6 +62,24 @@ const Home = () => {
 
   const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
+  // Preload adjacent articles
+  useEffect(() => {
+    if (allArticles.length > 0) {
+      const preloadImages = () => {
+        const preloadIndexes = [
+          currentIndex - 1,
+          currentIndex + 1
+        ].filter(index => index >= 0 && index < allArticles.length);
+
+        preloadIndexes.forEach(index => {
+          const img = new Image();
+          img.src = allArticles[index].image_url;
+        });
+      };
+      preloadImages();
+    }
+  }, [currentIndex, allArticles]);
+
   const handleNext = () => {
     if (currentIndex < allArticles.length - 1) {
       setCurrentIndex(prev => prev + 1);
@@ -98,7 +117,7 @@ const Home = () => {
     <div className="min-h-screen bg-background dark:bg-[#121620] pb-20">
       <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-foreground">Global News</h1>
+          <h1 className="text-2xl font-bold text-foreground">AroundTheGlobe</h1>
           <CategoryFilter
             selectedCategory={selectedCategory || "All"}
             onSelectCategory={(category) =>
@@ -111,40 +130,44 @@ const Home = () => {
 
       <main className="max-w-5xl mx-auto px-4 py-6">
         <PullToRefresh onRefresh={handleRefresh}>
-          {isMobile ? (
-            <div className="relative">
+      {isMobile ? (
+            <div className="relative h-[calc(100vh-160px)]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
                   initial={{ opacity: 0, x: 300 }}
-                  animate={{ opacity: 1, x: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }}
-                  exit={{ opacity: 0, x: -300, transition: { type: "spring", stiffness: 100, damping: 20 } }}
-                  className="w-full"
+                  animate={{ opacity: 1, x: 0, transition: { 
+                    type: "spring", 
+                    stiffness: 200, 
+                    damping: 25,
+                    mass: 0.5,
+                    velocity: 0.5
+                  } }}
+                  exit={{ opacity: 0, x: -300, transition: { 
+                    type: "spring", 
+                    stiffness: 200, 
+                    damping: 25,
+                    mass: 0.5,
+                    velocity: 0.5
+                  } }}
+                  className="w-full absolute top-0 left-0"
                 >
                   {allArticles[currentIndex] && (
                     <NewsCard
                       key={allArticles[currentIndex].id}
                       {...formatArticleForNewsCard(allArticles[currentIndex])}
+                      onSwipe={(direction) => {
+                        if (direction === 'left') {
+                          handleNext();
+                        } else if (direction === 'right') {
+                          handlePrevious();
+                        }
+                      }}
                     />
                   )}
                 </motion.div>
               </AnimatePresence>
-              <div className="flex justify-between mt-4">
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentIndex === 0}
-                  className="p-2 bg-background dark:bg-[#1A1F2C] rounded-full shadow-md disabled:opacity-50"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  disabled={currentIndex === allArticles.length - 1}
-                  className="p-2 bg-background dark:bg-[#1A1F2C] rounded-full shadow-md disabled:opacity-50"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </div>
+              <div className="mb-4" />
             </div>
           ) : (
             <motion.div

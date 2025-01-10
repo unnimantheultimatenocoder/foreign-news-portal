@@ -26,16 +26,6 @@ export const CategoryFilter = ({
       className="overflow-x-auto scrollbar-hide py-4"
     >
       <div className="flex space-x-2 px-4 min-w-max">
-        <button
-          onClick={() => onSelectCategory('All')}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            selectedCategory === 'All'
-              ? "bg-accent text-white"
-              : "bg-gray-100 text-secondary hover:bg-gray-200"
-          }`}
-        >
-          All
-        </button>
         {safeCategories.map((category) => (
           <button
             key={category.id}

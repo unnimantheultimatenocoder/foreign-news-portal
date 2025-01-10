@@ -10,7 +10,7 @@ export const NewsCardImage = ({ imageUrl, title }: NewsCardImageProps) => {
   const [hasError, setHasError] = useState(false);
 
   return (
-    <div className="relative aspect-[16/9] overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-800">
+    <div className="relative aspect-[3/2] max-h-[200px] overflow-hidden rounded-t-xl bg-gray-100 dark:bg-gray-800">
       {!hasError ? (
         <img
           src={imageUrl}
