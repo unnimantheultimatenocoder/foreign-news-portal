@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { getCategories } from "@/lib/api";
+import type { Category } from "@/lib/api/types";
 import { motion, AnimatePresence } from "framer-motion";
 import PullToRefresh from "react-pull-to-refresh";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -14,7 +16,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const ITEMS_PER_PAGE = 10;
 
 const Home = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>("All");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
@@ -28,15 +32,28 @@ const Home = () => {
     hasNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ['articles', { category: selectedCategory }],
+    queryKey: ['articles', { category: selectedCategoryId }],
     queryFn: ({ pageParam = 1 }) => getArticles({
-      category: selectedCategory || undefined,
+      category: selectedCategoryId || undefined,
       page: pageParam,
       limit: ITEMS_PER_PAGE,
     }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -116,15 +133,25 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background dark:bg-[#121620] pb-20">
       <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-foreground">AroundTheGlobe</h1>
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
           <CategoryFilter
-            selectedCategory={selectedCategory || "All"}
-            onSelectCategory={(category) =>
-              setSelectedCategory(category === "All" ? null : category)
-            }
-            categories={[]}
+            selectedCategory={selectedCategoryName}
+            onSelectCategory={(categoryId) => {
+              if (categoryId === "All") {
+                setSelectedCategoryId(null);
+                setSelectedCategoryName("All");
+              } else {
+                const selected = categories.find(c => c.id === categoryId);
+                if (selected) {
+                  setSelectedCategoryId(categoryId);
+                  setSelectedCategoryName(selected.name);
+                }
+              }
+            }}
           />
+          <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide mx-auto">
+            AroundTheGlobe
+          </h1>
         </div>
       </header>
 
