@@ -5,20 +5,20 @@ import { AppError } from "../errors";
 const sanitizeUrl = (url: string): string => {
   if (!url) return '';
   
-  // Remove any trailing colons and ensure proper URL format
-  let sanitized = url.trim()
-    .replace(/:[/]+/g, '://') // Fix protocol separator
-    .replace(/([^:])\/+/g, '$1/') // Remove duplicate slashes
-    .replace(/:+$/, ''); // Remove trailing colons
-  
-  // Ensure the URL has a proper protocol
-  if (!sanitized.startsWith('http://') && !sanitized.startsWith('https://')) {
-    sanitized = `https://${sanitized}`;
-  }
-  
   try {
-    new URL(sanitized); // Validate URL format
-    return sanitized;
+    // Remove any trailing colons and clean up the URL
+    let sanitized = url.trim()
+      .replace(/:[/]*$/, '') // Remove trailing colons and slashes
+      .replace(/([^:])\/+/g, '$1/'); // Remove duplicate slashes except after protocol
+    
+    // Ensure proper protocol
+    if (!sanitized.match(/^https?:\/\//i)) {
+      sanitized = `https://${sanitized}`;
+    }
+    
+    // Validate URL format
+    const urlObject = new URL(sanitized);
+    return urlObject.toString();
   } catch (error) {
     console.error('Invalid URL:', url, error);
     return '';
