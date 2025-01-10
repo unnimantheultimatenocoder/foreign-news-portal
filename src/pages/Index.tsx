@@ -65,29 +65,31 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-dark-bg pb-16 sm:pb-20">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-4 sm:space-y-6 pt-4 sm:pt-12">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
-          Explore
-        </h1>
-        
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 dark:text-dark-muted" />
-          <Input
-            type="search"
-            placeholder="Search for topics..."
-            className="pl-10 search-input"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+    <div className="min-h-screen bg-background dark:bg-dark-bg flex flex-col">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 pt-4 sm:pt-8 pb-16 sm:pb-20">
+        <div className="space-y-4 sm:space-y-6 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+            Explore
+          </h1>
+          
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 dark:text-dark-muted" />
+            <Input
+              type="search"
+              placeholder="Search for topics..."
+              className="pl-10 search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <CategoryCard type="global" title="Global News" />
-          <CategoryCard type="jobs" title="Jobs" />
-          <CategoryCard type="education" title="Education" />
-          <CategoryCard type="immigration" title="Immigration" />
-          <CategoryCard type="tech" title="Tech Updates" />
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <CategoryCard type="global" title="Global News" />
+            <CategoryCard type="jobs" title="Jobs" />
+            <CategoryCard type="education" title="Education" />
+            <CategoryCard type="immigration" title="Immigration" />
+            <CategoryCard type="tech" title="Tech Updates" />
+          </div>
         </div>
 
         {isLoading ? (
@@ -98,7 +100,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="relative h-[calc(100vh-14rem)] sm:h-[calc(100vh-20rem)] overflow-hidden">
+            <div className="relative h-[calc(100vh-16rem)] sm:h-[calc(100vh-20rem)] overflow-hidden">
               <AnimatePresence mode="wait">
                 {articles[currentArticleIndex] && (
                   <motion.div
