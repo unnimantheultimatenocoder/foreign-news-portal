@@ -65,8 +65,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-12 pb-20 dark:bg-dark-bg">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-4 sm:space-y-6">
+    <div className="min-h-screen bg-background dark:bg-dark-bg pb-16 sm:pb-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-4 sm:space-y-6 pt-4 sm:pt-12">
         <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
           Explore
         </h1>
@@ -98,7 +98,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
+            <div className="relative h-[calc(100vh-14rem)] sm:h-[calc(100vh-20rem)] overflow-hidden">
               <AnimatePresence mode="wait">
                 {articles[currentArticleIndex] && (
                   <motion.div
