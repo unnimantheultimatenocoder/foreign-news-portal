@@ -13,13 +13,13 @@ export const useSwipeGesture = ({ onSwipe }: UseSwipeGestureProps) => {
     
     if (Math.abs(info.offset.x) > swipeThreshold && onSwipe) {
       await controls.start({
-        x: info.offset.x > 0 ? 300 : -300,
-        opacity: 0,
-        transition: { duration: 0.3 }
+        x: info.offset.x > 0 ? 150 : -150,
+        transition: { duration: 0.15 }
       });
       onSwipe(direction);
+      controls.set({ x: 0 });
     } else {
-      controls.start({ x: 0, opacity: 1 });
+      controls.start({ x: 0 });
     }
   };
 

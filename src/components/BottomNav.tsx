@@ -44,10 +44,8 @@ export const BottomNav = () => {
   };
 
   return (
-    <motion.nav 
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 py-3 sm:py-4 px-6 sm:px-8 flex justify-around items-center z-50 will-change-transform"
+    <motion.nav
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-3 sm:py-4 px-6 sm:px-8 flex justify-around items-center z-50"
     >
       <NavLink to="/" icon={Home} label="Home" />
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
