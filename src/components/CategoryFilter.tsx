@@ -71,7 +71,7 @@ export const CategoryFilter = ({
           className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
             selectedCategory === "All"
               ? "bg-accent text-white"
-              : "bg-gray-100 text-secondary hover:bg-gray-200"
+              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
           }`}
         >
           All
@@ -86,7 +86,7 @@ export const CategoryFilter = ({
               className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                 selectedCategory === category.id
                   ? "bg-accent text-white"
-                  : "bg-gray-100 text-secondary hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-900 hover:bg-gray-200"
               }`}
             >
               {category.name}
