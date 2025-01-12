@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%; /* White */
+    --foreground: 220 14% 20%; /* Dark Gray */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 14% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 14% 20%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 100% 50%; /* Red */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -36,17 +36,17 @@
   }
 
   .dark {
-    --background: 230 24% 14%;
-    --foreground: 210 40% 98%;
+    --background: 220 14% 10%; /* Dark Gray */
+    --foreground: 210 20% 80%; /* Light Gray */
 
-    --card: 225 25% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 14% 10%;
+    --card-foreground: 210 20% 80%;
 
-    --popover: 225 25% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 14% 10%;
+    --popover-foreground: 210 20% 80%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 220 50% 50%; /* Muted Blue */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 225 25% 24%;
     --secondary-foreground: 210 40% 98%;
@@ -78,29 +78,29 @@
 }
 
 .dark .news-card {
-  @apply bg-[#1A1F2C] border-gray-700/30 hover:border-gray-700/50 transition-colors;
+  @apply bg-card border-border hover:border-border transition-colors;
 }
 
 .dark .news-card-content {
-  @apply text-gray-100;
+  @apply text-foreground;
 }
 
 .dark .news-card-summary {
-  @apply text-gray-300;
+  @apply text-muted-foreground;
 }
 
 .dark .news-card-actions button {
-  @apply bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700;
+  @apply bg-secondary border-border text-foreground hover:bg-secondary/80;
 }
 
 .dark .news-card-actions button[data-state="active"] {
-  @apply bg-blue-600 text-white border-blue-500 hover:bg-blue-700;
+  @apply bg-primary text-primary-foreground border-primary hover:bg-primary/80;
 }
 
 .dark .category-filter {
-  @apply bg-[#1A1F2C] border-gray-700/30;
+  @apply bg-card border-border;
 }
 
 .dark .search-input {
-  @apply bg-[#1A1F2C] border-gray-700/30 text-gray-100 placeholder:text-gray-500;
+  @apply bg-card border-border text-foreground placeholder:text-muted-foreground;
 }
