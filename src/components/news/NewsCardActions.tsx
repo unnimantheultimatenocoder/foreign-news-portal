@@ -41,7 +41,7 @@ export const NewsCardActions = ({
         variant={isSaved ? "default" : "outline"}
         size="icon"
         className={`h-8 w-8 ${isSaved ? 
-          "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" : 
+          "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700" : 
           "dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"}`}
         onClick={onSave}
       >
