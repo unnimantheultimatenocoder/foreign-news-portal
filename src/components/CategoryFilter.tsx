@@ -1,11 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getCategories } from "@/lib/api";
 import type { Category } from "@/lib/api/types";
 
@@ -20,6 +14,7 @@ export const CategoryFilter = ({
 }: CategoryFilterProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -36,6 +31,17 @@ export const CategoryFilter = ({
     fetchCategories();
   }, []);
 
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200;
+      const newScrollLeft = scrollContainerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
+      scrollContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="px-4 py-2 text-sm text-gray-500">
@@ -43,56 +49,50 @@ export const CategoryFilter = ({
       </div>
     );
   }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="px-4 py-4"
+      className="relative flex items-center"
     >
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-          {selectedCategory || "Select Category"}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-48">
-          <DropdownMenuItem
-            key="all"
-            onClick={() => onSelectCategory("All")}
-            className={`${
-              selectedCategory === "All"
-                ? "bg-accent text-white"
-                : "text-secondary hover:bg-gray-100"
-            }`}
-          >
-            All
-          </DropdownMenuItem>
-          {categories.map((category) => (
-            <DropdownMenuItem
+      <div
+        ref={scrollContainerRef}
+        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-2 px-4 gap-2 max-w-full"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        <button
+          key="all"
+          onClick={() => onSelectCategory("All")}
+          className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+            selectedCategory === "All"
+              ? "bg-accent text-white"
+              : "bg-gray-100 text-secondary hover:bg-gray-200"
+          }`}
+        >
+          All
+        </button>
+        {categories
+          .filter(category => category.name !== "Health" && category.name !== "Science and Technology" && category.name !== "Science" && category.name !== "Technology" && category.name !== "Business")
+          .concat(categories.find(category => category.name === "courses") ? [categories.find(category => category.name === "courses")!] : [])
+          .map((category) => (
+            <button
               key={category.id}
               onClick={() => onSelectCategory(category.id)}
-              className={`${
+              className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                 selectedCategory === category.id
                   ? "bg-accent text-white"
-                  : "text-secondary hover:bg-gray-100"
+                  : "bg-gray-100 text-secondary hover:bg-gray-200"
               }`}
             >
               {category.name}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            </button>
+        ))}
+      </div>
     </motion.div>
   );
 };

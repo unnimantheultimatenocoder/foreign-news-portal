@@ -135,25 +135,29 @@ const Home = () => {
           {/* Fixed Header Layer */}
           <div className="fixed top-0 left-0 right-0 z-[1000] will-change-transform">
             <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800">
-              <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
-                <CategoryFilter
-                  selectedCategory={selectedCategoryName}
-                  onSelectCategory={(categoryId) => {
-                    if (categoryId === "All") {
-                      setSelectedCategoryId(null);
-                      setSelectedCategoryName("All");
-                    } else {
-                      const selected = categories.find(c => c.id === categoryId);
-                      if (selected) {
-                        setSelectedCategoryId(categoryId);
-                        setSelectedCategoryName(selected.name);
+              <div className="max-w-5xl mx-auto">
+                <div className="px-4 py-3 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
+                  <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide" style={{ transform: 'translateZ(0)' }}>
+                    AroundTheGlobe
+                  </h1>
+                </div>
+                <div className="w-full overflow-hidden">
+                  <CategoryFilter
+                    selectedCategory={selectedCategoryName}
+                    onSelectCategory={(categoryId) => {
+                      if (categoryId === "All") {
+                        setSelectedCategoryId(null);
+                        setSelectedCategoryName("All");
+                      } else {
+                        const selected = categories.find(c => c.id === categoryId);
+                        if (selected) {
+                          setSelectedCategoryId(categoryId);
+                          setSelectedCategoryName(selected.name);
+                        }
                       }
-                    }
-                  }}
-                />
-                <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide mx-auto" style={{ transform: 'translateZ(0)' }}>
-                  AroundTheGlobe
-                </h1>
+                    }}
+                  />
+                </div>
               </div>
             </header>
           </div>
