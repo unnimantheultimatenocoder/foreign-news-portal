@@ -131,53 +131,57 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#121620] pb-20">
-      <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
-          <CategoryFilter
-            selectedCategory={selectedCategoryName}
-            onSelectCategory={(categoryId) => {
-              if (categoryId === "All") {
-                setSelectedCategoryId(null);
-                setSelectedCategoryName("All");
-              } else {
-                const selected = categories.find(c => c.id === categoryId);
-                if (selected) {
-                  setSelectedCategoryId(categoryId);
-                  setSelectedCategoryName(selected.name);
-                }
-              }
-            }}
-          />
-          <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide mx-auto">
-            AroundTheGlobe
-          </h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background dark:bg-[#121620] pb-20 relative">
+          {/* Fixed Header Layer */}
+          <div className="fixed top-0 left-0 right-0 z-[1000] will-change-transform">
+            <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800">
+              <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
+                <CategoryFilter
+                  selectedCategory={selectedCategoryName}
+                  onSelectCategory={(categoryId) => {
+                    if (categoryId === "All") {
+                      setSelectedCategoryId(null);
+                      setSelectedCategoryName("All");
+                    } else {
+                      const selected = categories.find(c => c.id === categoryId);
+                      if (selected) {
+                        setSelectedCategoryId(categoryId);
+                        setSelectedCategoryName(selected.name);
+                      }
+                    }
+                  }}
+                />
+                <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide mx-auto" style={{ transform: 'translateZ(0)' }}>
+                  AroundTheGlobe
+                </h1>
+              </div>
+            </header>
+          </div>
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+<main className="max-w-5xl mx-auto px-4 pt-20 pb-6">
         <PullToRefresh onRefresh={handleRefresh}>
       {isMobile ? (
-            <div className="relative h-[calc(100vh-160px)]">
+            <div className="relative h-[calc(100vh-160px)] overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
                   initial={{ opacity: 0, x: 300 }}
-                  animate={{ opacity: 1, x: 0, transition: { 
-                    type: "spring", 
-                    stiffness: 200, 
+                  animate={{ opacity: 1, x: 0, transition: {
+                    type: "spring",
+                    stiffness: 200,
                     damping: 25,
                     mass: 0.5,
                     velocity: 0.5
                   } }}
-                  exit={{ opacity: 0, x: -300, transition: { 
-                    type: "spring", 
-                    stiffness: 200, 
+                  exit={{ opacity: 0, x: -300, transition: {
+                    type: "spring",
+                    stiffness: 200,
                     damping: 25,
                     mass: 0.5,
                     velocity: 0.5
                   } }}
                   className="w-full absolute top-0 left-0"
+                  style={{ transform: 'translate3d(0,0,0)', willChange: 'transform' }}
                 >
                   {allArticles[currentIndex] && (
                     <NewsCard

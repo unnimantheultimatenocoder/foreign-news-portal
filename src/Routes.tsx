@@ -1,5 +1,6 @@
 import { Routes as RouterRoutes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import { NewsCardPage } from "./pages/NewsCardPage";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import SavedNews from "./pages/SavedNews";
@@ -24,6 +25,7 @@ export default function Routes() {
       <Route path="/saved" element={<SavedNews />} />
       <Route path="/search" element={<Search />} />
       <Route path="/categories" element={<Categories />} />
+      <Route path="/:id" element={<NewsCardPage />} />
       
       {/* Admin routes */}
       <Route path="/admin" element={<AdminRoute />}>

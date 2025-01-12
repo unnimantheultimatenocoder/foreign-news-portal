@@ -29,9 +29,11 @@ export const TopNav = () => {
   });
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-md z-50 border-b border-border">
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-12 px-3 sm:px-4">
-        <h1 className="text-lg sm:text-xl font-bold">News Feed</h1>
+<nav className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-md z-[1000] border-b border-border fixed">
+      <div className="max-w-7xl mx-auto relative h-10 px-3 sm:px-4">
+        <h1 className="text-lg sm:text-xl font-bold fixed left-1/2 top-1/2 transition-none pointer-events-none" style={{transform: 'translate(-50%, -50%)'}}>
+          Around the Globe
+        </h1>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <DropdownMenu>
