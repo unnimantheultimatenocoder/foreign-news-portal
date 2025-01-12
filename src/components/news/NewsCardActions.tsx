@@ -35,7 +35,7 @@ export const NewsCardActions = ({
         className="h-8 w-8 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onShare}
       >
-        <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
       </Button>
       <Button
         variant={isSaved ? "default" : "outline"}
@@ -54,7 +54,7 @@ export const NewsCardActions = ({
           className="h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30 dark:border-gray-700"
           onClick={onDelete}
         >
-          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
         </Button>
       )}
     </div>
