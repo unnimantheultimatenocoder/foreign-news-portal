@@ -59,12 +59,10 @@ export const NewsCard = ({
   return (
     <motion.div
       drag="x"
-      dragConstraints={{ left: -20, right: 20 }}
-      dragElastic={0.05}
       onDragEnd={handleDragEnd}
       animate={controls}
       initial={{ x: 0 }}
-      transition={{ type: "spring", stiffness: 500, damping: 50 }}
+      transition={{ type: "spring", stiffness: 500, damping: 100 }}
       className="flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200 relative z-10"
     >
       <NewsCardImage imageUrl={imageUrl} title={title} />
