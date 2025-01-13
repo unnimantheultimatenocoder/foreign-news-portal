@@ -137,7 +137,7 @@ const Home = () => {
             <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800">
               <div className="max-w-5xl mx-auto">
                 <div className="px-4 py-3 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
-                  <h1 className="text-2xl font-bold text-foreground font-sans tracking-wide" style={{ transform: 'translateZ(0)' }}>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-[#FF0000] font-serif tracking-wide" style={{ transform: 'translateZ(0)', fontFamily: 'Roboto Slab' }}>
                     AroundTheGlobe
                   </h1>
                 </div>
