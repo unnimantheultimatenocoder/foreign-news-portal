@@ -23,7 +23,7 @@ export const NewsCardActions = ({
       <Button
         variant="outline"
         size="sm"
-        className="flex-1 text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
+className="flex-1 text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onReadMore}
       >
         <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
@@ -32,10 +32,10 @@ export const NewsCardActions = ({
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
+className="h-8 w-8 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700"
         onClick={onShare}
       >
-        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
+<Share2 className="w-3 h-3 sm:w-4 sm:h-4 dark:text-gray-100" />
       </Button>
       <Button
         variant={isSaved ? "default" : "outline"}
@@ -45,7 +45,7 @@ export const NewsCardActions = ({
           "dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"}`}
         onClick={onSave}
       >
-        <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${isSaved ? 'fill-white' : ''}`} />
+<Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${isSaved ? 'fill-white' : 'dark:text-gray-100'}`} />
       </Button>
       {showDelete && (
         <Button
@@ -54,7 +54,7 @@ export const NewsCardActions = ({
           className="h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30 dark:border-gray-700"
           onClick={onDelete}
         >
-          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
+<Trash2 className="w-3 h-3 sm:w-4 sm:h-4 dark:text-gray-100" />
         </Button>
       )}
     </div>
