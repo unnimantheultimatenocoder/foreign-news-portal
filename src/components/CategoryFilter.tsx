@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { getCategories } from "@/lib/api";
 import type { Category } from "@/lib/api/types";
+import { Button } from "@/components/ui/button";
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -65,32 +66,36 @@ export const CategoryFilter = ({
           WebkitOverflowScrolling: 'touch'
         }}
       >
-        <button
+        <Button
           key="all"
           onClick={() => onSelectCategory("All")}
-          className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-            selectedCategory === "All"
-              ? "bg-accent text-white"
-              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-          }`}
+          variant={selectedCategory === "All" ? "default" : "ghost"}
+          className="snap-start flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-red-100 hover:text-red-900"
+          style={{ 
+            backgroundColor: selectedCategory === "All" ? '#FF0000' : undefined,
+            color: selectedCategory === "All" ? '#FFFFFF' : undefined,
+            transition: 'background-color 0.2s ease, color 0.2s ease'
+          }}
         >
           All
-        </button>
+        </Button>
         {categories
           .filter(category => category.name !== "Health" && category.name !== "Science and Technology" && category.name !== "Science" && category.name !== "Technology" && category.name !== "Business")
           .concat(categories.find(category => category.name === "courses") ? [categories.find(category => category.name === "courses")!] : [])
           .map((category) => (
-            <button
+            <Button
               key={category.id}
               onClick={() => onSelectCategory(category.id)}
-              className={`snap-start flex-none px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                selectedCategory === category.id
-                  ? "bg-accent text-white"
-                  : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-              }`}
+              variant={selectedCategory === category.id ? "default" : "ghost"}
+              className="snap-start flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-red-100 hover:text-red-900"
+              style={{ 
+                backgroundColor: selectedCategory === category.id ? '#FF0000' : undefined,
+                color: selectedCategory === category.id ? '#FFFFFF' : undefined,
+                transition: 'background-color 0.2s ease, color 0.2s ease'
+              }}
             >
               {category.name}
-            </button>
+            </Button>
         ))}
       </div>
     </motion.div>
