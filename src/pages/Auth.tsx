@@ -42,27 +42,57 @@ const AuthPage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6 text-primary">Welcome to ATG</h1>
+    <div className="min-h-screen bg-[#FFE6E6] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-[20px] shadow-lg p-8">
+        <h1 className="text-3xl font-bold text-center mb-8 text-[#E63946]">Welcome Back</h1>
         <Auth
           supabaseClient={supabase}
-          appearance={{ 
+          appearance={{
             theme: ThemeSupa,
             variables: {
               default: {
                 colors: {
-                  brand: '#007bff',
-                  brandAccent: '#007bff',
-                  defaultButtonBackground: '#007bff',
+                  brand: '#E63946',
+                  brandAccent: '#E63946',
+                  defaultButtonBackground: '#E63946',
                   defaultButtonText: '#ffffff',
-                }
+                  inputBackground: 'white',
+                  inputBorder: '#E5E7EB',
+                  inputBorderHover: '#E63946',
+                  inputBorderFocus: '#E63946',
+                },
+                borderWidths: {
+                  buttonBorderWidth: '0px',
+                  inputBorderWidth: '1px',
+                },
+                radii: {
+                  borderRadiusButton: '8px',
+                  buttonBorderRadius: '8px',
+                  inputBorderRadius: '8px',
+                },
               }
             },
-            // Handle errors through the appearance prop
             style: {
               message: {
-                color: 'rgb(239 68 68)'
+                color: '#E63946'
+              },
+              anchor: {
+                color: '#E63946',
+                textDecoration: 'none',
+              },
+              button: {
+                height: '45px',
+                fontSize: '16px',
+                fontWeight: '500',
+              },
+              input: {
+                fontSize: '16px',
+                padding: '12px',
+              },
+              label: {
+                color: '#374151',
+                fontSize: '16px',
+                marginBottom: '6px',
               }
             }
           }}
