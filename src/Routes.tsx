@@ -1,5 +1,5 @@
 import { Routes as RouterRoutes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
 import { NewsCardPage } from "./pages/NewsCardPage";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -15,16 +15,21 @@ import Sources from "./pages/admin/Sources";
 import Settings from "./pages/admin/Settings";
 import AdminRoute from "./components/AdminRoute";
 import AdminCategories from "./pages/admin/Categories";
+import Notifications from "./pages/admin/Notifications";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 export default function Routes() {
   return (
     <RouterRoutes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/saved" element={<SavedNews />} />
       <Route path="/search" element={<Search />} />
       <Route path="/categories" element={<Categories />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/:id" element={<NewsCardPage />} />
       
       {/* Admin routes */}
@@ -38,6 +43,7 @@ export default function Routes() {
         <Route path="tags" element={<Tags />} />
         <Route path="sources" element={<Sources />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="notifications" element={<Notifications />} />
       </Route>
     </RouterRoutes>
   );
