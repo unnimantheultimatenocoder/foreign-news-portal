@@ -1,62 +1,85 @@
-import { Share2, ExternalLink, Bookmark, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Share2, Bookmark, BookmarkCheck, Trash2, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mobileService } from "@/services/mobile";
 
 interface NewsCardActionsProps {
-  onShare: () => void;
-  onSave: () => void;
+  title?: string;
+  url?: string;
+  onShare?: () => void;
+  onSave?: () => void;
   onDelete?: () => void;
-  onReadMore: () => void;
-  isSaved: boolean;
+  onReadMore?: () => void;
+  isSaved?: boolean;
   showDelete?: boolean;
 }
 
 export const NewsCardActions = ({
+  title,
+  url,
   onShare,
   onSave,
   onDelete,
   onReadMore,
   isSaved,
-  showDelete = false
+  showDelete
 }: NewsCardActionsProps) => {
+  const handleShare = async () => {
+    if (title && url) {
+      await mobileService.shareContent(
+        title,
+        "Check out this interesting article!",
+        url
+      );
+    }
+    onShare?.();
+  };
+
   return (
-    <div className="flex items-center gap-2 mt-auto pt-2">
+    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-gray-800">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-9 w-9 p-0"
+          onClick={handleShare}
+          aria-label="Share article"
+        >
+          <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-9 w-9 p-0"
+          onClick={onSave}
+          aria-label={isSaved ? "Remove from saved" : "Save article"}
+        >
+          {isSaved ? (
+            <BookmarkCheck className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
+          ) : (
+            <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
+          )}
+        </Button>
+        {showDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 text-red-500 hover:text-red-600"
+            onClick={onDelete}
+            aria-label="Delete article"
+          >
+            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        )}
+      </div>
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
-className="flex-1 text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700"
+        className="h-9 px-3 text-sm gap-1.5"
         onClick={onReadMore}
       >
-        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-        Read article
+        Read More
+        <ExternalLink className="h-4 w-4" />
       </Button>
-      <Button
-        variant="outline"
-        size="icon"
-className="h-8 w-8 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700"
-        onClick={onShare}
-      >
-<Share2 className="w-3 h-3 sm:w-4 sm:h-4 dark:text-gray-100" />
-      </Button>
-      <Button
-        variant={isSaved ? "default" : "outline"}
-        size="icon"
-        className={`h-8 w-8 ${isSaved ? 
-          "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700" : 
-          "dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"}`}
-        onClick={onSave}
-      >
-<Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${isSaved ? 'fill-white' : 'dark:text-gray-100'}`} />
-      </Button>
-      {showDelete && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30 dark:border-gray-700"
-          onClick={onDelete}
-        >
-<Trash2 className="w-3 h-3 sm:w-4 sm:h-4 dark:text-gray-100" />
-        </Button>
-      )}
     </div>
   );
 };
