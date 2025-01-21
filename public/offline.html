@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Foreign News Portal</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #1A1F2C;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 500px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 24px;
+            color: #ef4444;
+        }
+
+        h1 {
+            margin: 0 0 16px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 0 0 24px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #ef4444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #dc2626;
+        }
+
+        .cached-content {
+            margin-top: 32px;
+            padding: 16px;
+            background-color: #252d3b;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .cached-content h2 {
+            margin: 0 0 16px;
+            font-size: 18px;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 12L20.56 9.21l.34-3.69-3.61-.82-2.09-3.06L12 3 8.8 1.64 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.8 22.36l3.2-1.36 3.2 1.36 2.09-3.05 3.61-.82-.34-3.69L23 12z"/>
+            <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+        <h1>You're Offline</h1>
+        <p>Please check your internet connection and try again. Some content may be available offline.</p>
+        <a href="/" class="button">Try Again</a>
+
+        <div class="cached-content">
+            <h2>Saved News</h2>
+            <p>Access your saved articles while offline by visiting the Saved section.</p>
+        </div>
+    </div>
+
+    <script>
+        // Attempt to reload when online
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+
+        // Check if we have cached content
+        if ('caches' in window) {
+            caches.match('/').then(response => {
+                if (response) {
+                    console.log('Found cached content');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
