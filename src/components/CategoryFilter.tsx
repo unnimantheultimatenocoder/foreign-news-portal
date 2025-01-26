@@ -32,20 +32,9 @@ export const CategoryFilter = ({
     fetchCategories();
   }, []);
 
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 200;
-      const newScrollLeft = scrollContainerRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
-      scrollContainerRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   if (loading) {
     return (
-      <div className="px-4 py-2 text-sm text-gray-500">
+      <div className="px-4 text-sm text-gray-500">
         Loading categories...
       </div>
     );
@@ -53,29 +42,30 @@ export const CategoryFilter = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative flex items-center"
+      className="relative flex items-center mt-0 w-full overflow-hidden"
     >
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-2 px-4 gap-2 max-w-full"
+        className="flex overflow-x-auto scrollbar-hide py-2 px-4 gap-3 w-full"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorX: 'contain',
+          scrollSnapType: 'x proximity'
         }}
       >
         <Button
           key="all"
           onClick={() => onSelectCategory("All")}
           variant={selectedCategory === "All" ? "default" : "ghost"}
-          className="snap-start flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-red-100 hover:text-red-900"
-          style={{ 
-            backgroundColor: selectedCategory === "All" ? '#FF0000' : undefined,
-            color: selectedCategory === "All" ? '#FFFFFF' : undefined,
-            transition: 'background-color 0.2s ease, color 0.2s ease'
-          }}
+          className={`flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap touch-pan-x ${
+            selectedCategory === "All"
+              ? "bg-[#FF0000] text-white hover:bg-[#FF0000] hover:text-white"
+              : "hover:bg-red-100 hover:text-red-900"
+          }`}
         >
           All
         </Button>
@@ -87,16 +77,15 @@ export const CategoryFilter = ({
               key={category.id}
               onClick={() => onSelectCategory(category.id)}
               variant={selectedCategory === category.id ? "default" : "ghost"}
-              className="snap-start flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-red-100 hover:text-red-900"
-              style={{ 
-                backgroundColor: selectedCategory === category.id ? '#FF0000' : undefined,
-                color: selectedCategory === category.id ? '#FFFFFF' : undefined,
-                transition: 'background-color 0.2s ease, color 0.2s ease'
-              }}
+              className={`flex-none px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap touch-pan-x ${
+                selectedCategory === category.id
+                  ? "bg-[#FF0000] text-white hover:bg-[#FF0000] hover:text-white"
+                  : "hover:bg-red-100 hover:text-red-900"
+              }`}
             >
               {category.name}
             </Button>
-        ))}
+          ))}
       </div>
     </motion.div>
   );

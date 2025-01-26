@@ -3,7 +3,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getCategories } from "@/lib/api";
 import type { Category } from "@/lib/api/types";
 import { motion, AnimatePresence } from "framer-motion";
-import PullToRefresh from "react-pull-to-refresh";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
@@ -12,15 +11,36 @@ import { getArticles } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useInView } from "react-intersection-observer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import type { ReactElement } from 'react';
 
 const ITEMS_PER_PAGE = 10;
 
-const Home = () => {
+interface Article {
+  id: string;
+  title: string;
+  summary: string;
+  image_url: string;
+  category?: { name: string };
+  source?: string;
+  published_at: string;
+  original_url: string;
+}
+
+const formatArticleForNewsCard = (article: Article) => ({
+  id: article.id,
+  title: article.title,
+  summary: article.summary,
+  imageUrl: article.image_url,
+  category: article.category?.name || article.source,
+  date: new Date(article.published_at).toLocaleDateString(),
+  url: article.original_url,
+});
+
+const Home = (): ReactElement => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>("All");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
   const { ref: loadMoreRef, inView } = useInView();
   const isMobile = useIsMobile();
@@ -41,6 +61,8 @@ const Home = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
+
+  const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -77,26 +99,6 @@ const Home = () => {
     }
   };
 
-  const allArticles = data?.pages.flatMap(page => page.articles) || [];
-
-  // Preload adjacent articles
-  useEffect(() => {
-    if (allArticles.length > 0) {
-      const preloadImages = () => {
-        const preloadIndexes = [
-          currentIndex - 1,
-          currentIndex + 1
-        ].filter(index => index >= 0 && index < allArticles.length);
-
-        preloadIndexes.forEach(index => {
-          const img = new Image();
-          img.src = allArticles[index].image_url;
-        });
-      };
-      preloadImages();
-    }
-  }, [currentIndex, allArticles]);
-
   const handleNext = () => {
     if (currentIndex < allArticles.length - 1) {
       setCurrentIndex(prev => prev + 1);
@@ -111,7 +113,7 @@ const Home = () => {
 
   if (articlesLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto" />
           <p className="mt-4 text-secondary">Loading articles...</p>
@@ -120,110 +122,104 @@ const Home = () => {
     );
   }
 
-  const formatArticleForNewsCard = (article: any) => ({
-    id: article.id,
-    title: article.title,
-    summary: article.summary,
-    imageUrl: article.image_url,
-    category: article.category?.name || article.source,
-    date: new Date(article.published_at).toLocaleDateString(),
-    url: article.original_url,
-  });
-
   return (
-    <div className="min-h-screen bg-background dark:bg-[#121620] pb-20 relative">
-          {/* Fixed Header Layer */}
-          <div className="fixed top-0 left-0 right-0 z-[1000] will-change-transform">
-            <header className="bg-background dark:bg-[#1A1F2C] border-b border-gray-200 dark:border-gray-800">
-              <div className="max-w-5xl mx-auto">
-                <div className="px-4 py-3 flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-[#FF0000] font-serif tracking-wide" style={{ transform: 'translateZ(0)', fontFamily: 'Roboto Slab' }}>
-                    AroundTheGlobe
-                  </h1>
-                </div>
-                <div className="w-full overflow-hidden">
-                  <CategoryFilter
-                    selectedCategory={selectedCategoryName}
-                    onSelectCategory={(categoryId) => {
-                      if (categoryId === "All") {
-                        setSelectedCategoryId(null);
-                        setSelectedCategoryName("All");
-                      } else {
-                        const selected = categories.find(c => c.id === categoryId);
-                        if (selected) {
-                          setSelectedCategoryId(categoryId);
-                          setSelectedCategoryName(selected.name);
-                        }
+    <div className="min-h-screen pb-20 relative">
+      <div className="fixed top-0 left-0 right-0 z-[1000]">
+        <header className="border-b border-gray-200 dark:border-gray-800 bg-opacity-90 backdrop-blur-sm">
+          <div className="max-w-5xl mx-auto">
+            <div className="w-full overflow-hidden">
+              <CategoryFilter
+                selectedCategory={selectedCategoryName}
+                onSelectCategory={(categoryId) => {
+                  if (categoryId === "All") {
+                    setSelectedCategoryId(null);
+                    setSelectedCategoryName("All");
+                  } else {
+                    const selected = categories.find(c => c.id === categoryId);
+                    if (selected) {
+                      setSelectedCategoryId(categoryId);
+                      setSelectedCategoryName(selected.name);
+                    }
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <main className="max-w-5xl mx-auto px-4 pt-12 pb-6">
+        {isMobile ? (
+          <div
+            className="relative h-[calc(100vh-160px)] overflow-hidden"
+            aria-label="News feed with swipe navigation"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                className="w-full absolute top-0 left-0"
+                key={currentIndex}
+                initial={{ opacity: 0, y: 300 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 40
+                  }
+                }}
+                exit={{
+                  opacity: 0,
+                  y: -300,
+                  transition: {
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 40
+                  }
+                }}
+              >
+                {allArticles[currentIndex] && (
+                  <NewsCard
+                    key={allArticles[currentIndex].id}
+                    {...formatArticleForNewsCard(allArticles[currentIndex])}
+                    onSwipe={(direction) => {
+                      if (direction === 'up') {
+                        handleNext();
+                      } else if (direction === 'down') {
+                        handlePrevious();
                       }
                     }}
+                    aria-label={`Article ${currentIndex + 1} of ${allArticles.length}. Swipe up for next, down for previous`}
                   />
-                </div>
-              </div>
-            </header>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
-
-<main className="max-w-5xl mx-auto px-4 pt-20 pb-6">
-        <PullToRefresh onRefresh={handleRefresh}>
-      {isMobile ? (
-            <div className="relative h-[calc(100vh-160px)] overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  initial={{ opacity: 0, x: 300 }}
-                  animate={{ opacity: 1, x: 0, transition: {
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 25,
-                    mass: 0.5,
-                    velocity: 0.5
-                  } }}
-                  exit={{ opacity: 0, x: -300, transition: {
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 25,
-                    mass: 0.5,
-                    velocity: 0.5
-                  } }}
-                  className="w-full absolute top-0 left-0"
-                  style={{ transform: 'translate3d(0,0,0)', willChange: 'transform' }}
-                >
-                  {allArticles[currentIndex] && (
-                    <NewsCard
-                      key={allArticles[currentIndex].id}
-                      {...formatArticleForNewsCard(allArticles[currentIndex])}
-                      onSwipe={(direction) => {
-                        if (direction === 'left') {
-                          handleNext();
-                        } else if (direction === 'right') {
-                          handlePrevious();
-                        }
-                      }}
-                    />
-                  )}
-                </motion.div>
-              </AnimatePresence>
-              <div className="mb-4" />
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              {allArticles.map((article) => (
-                <NewsCard
-                  key={article.id}
-                  {...formatArticleForNewsCard(article)}
-                />
-              ))}
-            </motion.div>
-          )}
-          {hasNextPage && (
-            <div ref={loadMoreRef} className="flex justify-center mt-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
-            </div>
-          )}
-        </PullToRefresh>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            aria-label="News articles grid"
+          >
+            {allArticles.map((article) => (
+              <NewsCard
+                key={article.id}
+                {...formatArticleForNewsCard(article)}
+                aria-label={`Article: ${article.title}`}
+              />
+            ))}
+            {hasNextPage && (
+              <div 
+                ref={loadMoreRef} 
+                className="flex justify-center mt-8 col-span-full"
+                aria-label="Loading more articles"
+              >
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+              </div>
+            )}
+          </motion.div>
+        )}
       </main>
 
       <BottomNav />

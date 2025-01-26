@@ -7,6 +7,7 @@ import { NewsCardActions } from "./news/NewsCardActions";
 import { ShareMenu } from "./news/ShareMenu";
 import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
 import { useSaveArticle } from "@/hooks/use-save-article";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NewsCardProps {
   id: string;
@@ -18,7 +19,7 @@ interface NewsCardProps {
   url: string;
   showDelete?: boolean;
   onDelete?: () => void;
-  onSwipe?: (direction: "left" | "right") => void;
+  onSwipe?: (direction: "left" | "right" | "up" | "down") => void;
 }
 
 export const NewsCard = ({
@@ -35,7 +36,8 @@ export const NewsCard = ({
 }: NewsCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const { controls, handleDragEnd } = useSwipeGesture({ onSwipe });
+  const isMobile = useIsMobile();
+  const { controls, handleDragEnd } = useSwipeGesture({ onSwipe, isMobile });
   const { isSaved, handleSave } = useSaveArticle(id);
   const { toast } = useToast();
 
@@ -58,12 +60,23 @@ export const NewsCard = ({
 
   return (
     <motion.div
-      drag="x"
+      drag={isMobile ? "y" : "x"}
+      dragElastic={0.5}
+      dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
       animate={controls}
-      initial={{ x: 0 }}
-      transition={{ type: "spring", stiffness: 500, damping: 100 }}
-      className="flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-all duration-200 relative z-10"
+      initial={isMobile ? { y: 0 } : { x: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 250,
+        damping: 20,
+        mass: 0.8
+      }}
+      className="flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10"
+      style={{
+        touchAction: 'none',
+        WebkitOverflowScrolling: 'touch'
+      }}
     >
       <NewsCardImage imageUrl={imageUrl} title={title} />
       
