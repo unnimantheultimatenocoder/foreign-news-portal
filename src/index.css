@@ -4,62 +4,63 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 220 14% 20%; /* Dark Gray */
-
+    /* Gradient colors - Light mode */
+    --gradient-1: 217 80% 98%; /* Google Blue tint */
+    --gradient-2: 280 60% 98%; /* Soft Purple tint */
+    --gradient-3: 0 60% 98%;   /* Red tint */
+    
+    /* Wave colors - Light mode */
+    --wave-color: 220 10% 45%;
+    
+    /* Base colors */
+    --background: var(--gradient-1);
+    --foreground: 220 14% 20%;
     --card: 0 0% 100%;
     --card-foreground: 220 14% 20%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 220 14% 20%;
-
-    --primary: 0 100% 50%; /* Red */
-    --primary-foreground: 0 0% 100%; /* White */
-
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 220 14% 10%; /* Dark Gray */
-    --foreground: 210 20% 80%; /* Light Gray */
-
+    /* Gradient colors - Dark mode (based on dark.bg and category colors) */
+    --gradient-1: 224 25% 16%; /* Dark blue-gray (#1A1F2C) */
+    --gradient-2: 280 30% 18%; /* Deep purple */
+    --gradient-3: 220 25% 20%; /* Rich navy */
+    
+    /* Wave colors - Dark mode */
+    --wave-color: 217 80% 95%; /* Light blue tint */
+    
+    /* Base colors */
+    --background: var(--gradient-1);
+    --foreground: 210 20% 80%;
     --card: 220 14% 10%;
     --card-foreground: 210 20% 80%;
-
     --popover: 220 14% 10%;
     --popover-foreground: 210 20% 80%;
-
-    --primary: 220 50% 50%; /* Muted Blue */
-    --primary-foreground: 0 0% 100%; /* White */
-
+    --primary: 220 50% 50%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 225 25% 24%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 225 25% 24%;
     --muted-foreground: 217.9 10.6% 75%;
-
     --accent: 225 25% 24%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 225 25% 24%;
     --input: 225 25% 24%;
     --ring: 212.7 26.8% 83.9%;
@@ -72,13 +73,138 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     padding-top: 40px;
+    background: 
+      /* Wave pattern overlay */
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        hsla(var(--wave-color) / 0.02) 10px,
+        hsla(var(--wave-color) / 0.02) 20px
+      ),
+      /* Animated gradient mesh */
+      radial-gradient(
+        circle at 0% 0%,
+        hsla(var(--gradient-1) / 0.9) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 100% 0%,
+        hsla(var(--gradient-2) / 0.8) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 50% 100%,
+        hsla(var(--gradient-3) / 0.9) 0%,
+        transparent 50%
+      ),
+      linear-gradient(
+        135deg,
+        hsl(var(--gradient-1)) 0%,
+        hsl(var(--gradient-2)) 50%,
+        hsl(var(--gradient-3)) 100%
+      );
+    background-attachment: fixed;
+    background-size: 20px 20px, 200% 200%, 200% 200%, 200% 200%, 200% 200%;
+    animation: gradientShift 30s ease-in-out infinite;
+    will-change: background-position;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 
+        0 0,
+        0% 0%,
+        100% 0%,
+        50% 100%,
+        0% 50%;
+    }
+    25% {
+      background-position: 
+        0 0,
+        100% 50%,
+        0% 100%,
+        50% 0%,
+        100% 50%;
+    }
+    50% {
+      background-position: 
+        0 0,
+        50% 100%,
+        50% 0%,
+        100% 50%,
+        50% 100%;
+    }
+    75% {
+      background-position: 
+        0 0,
+        0% 50%,
+        100% 50%,
+        0% 100%,
+        0% 50%;
+    }
+    100% {
+      background-position: 
+        0 0,
+        0% 0%,
+        100% 0%,
+        50% 100%,
+        0% 50%;
+    }
   }
 }
 
+/* Card styling with frosted glass effect */
+.news-card {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    135deg,
+    hsla(217, 80%, 99%, 0.95), /* Google Blue tint */
+    hsla(217, 80%, 98%, 0.92)
+  );
+  border: 1px solid hsla(217, 80%, 90%, 0.2);
+  box-shadow: 
+    0 4px 6px -1px rgba(66, 133, 244, 0.05),
+    0 2px 4px -1px rgba(66, 133, 244, 0.03);
+  transition: all 0.2s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    135deg,
+    hsla(217, 80%, 99%, 0.97),
+    hsla(217, 80%, 98%, 0.95)
+  );
+  border: 1px solid hsla(217, 80%, 90%, 0.3);
+  box-shadow: 
+    0 10px 15px -3px rgba(66, 133, 244, 0.08),
+    0 4px 6px -2px rgba(66, 133, 244, 0.05);
+}
+
 .dark .news-card {
-  @apply bg-card border-border hover:border-border transition-colors;
+  background: linear-gradient(
+    135deg,
+    hsla(224, 25%, 16%, 0.9),
+    hsla(224, 25%, 14%, 0.85)
+  );
+  border: 1px solid hsla(224, 25%, 30%, 0.2);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dark .news-card:hover {
+  background: linear-gradient(
+    135deg,
+    hsla(224, 25%, 18%, 0.95),
+    hsla(224, 25%, 16%, 0.9)
+  );
+  border: 1px solid hsla(224, 25%, 35%, 0.3);
 }
 
 .dark .news-card-content {
@@ -90,17 +216,19 @@
 }
 
 .dark .news-card-actions button {
-  @apply bg-secondary border-border text-foreground hover:bg-secondary/80;
+  @apply bg-secondary/80 border-border/20 text-foreground hover:bg-secondary/60;
 }
 
 .dark .news-card-actions button[data-state="active"] {
-  @apply bg-primary text-primary-foreground border-primary hover:bg-primary/80;
+  @apply bg-primary/90 text-primary-foreground border-primary/80 hover:bg-primary/70;
 }
 
 .dark .category-filter {
-  @apply bg-card border-border;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  @apply bg-card/80 border-border/20;
 }
 
 .dark .search-input {
-  @apply bg-card border-border text-foreground placeholder:text-muted-foreground;
+  @apply bg-card/90 border-border/20 text-foreground placeholder:text-muted-foreground;
 }
