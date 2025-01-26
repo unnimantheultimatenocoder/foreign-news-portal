@@ -1,7 +1,7 @@
 [build]
   publish = "dist"
   command = "npm ci && npm install -g vite && npm run build"
-  environment = { NODE_VERSION = "18", NODE_ENV = "production", SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}", SUPABASE_URL = "${SUPABASE_URL}" }
+  environment = { NODE_VERSION = "20", NODE_ENV = "production", SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}", SUPABASE_URL = "${SUPABASE_URL}" }
 
 [[redirects]]
   from = "/*"
