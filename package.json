@@ -15,9 +15,6 @@
     "node": ">=20.11.1",
     "npm": ">=10.7.0"
   },
-  "resolutions": {
-    "@eslint/eslintrc": "^3.1.0"
-  },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -100,6 +97,6 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
-    "@eslint/eslintrc": "^3.1.0"
+    "@eslint/eslintrc": "^9.9.0"
   }
 }
