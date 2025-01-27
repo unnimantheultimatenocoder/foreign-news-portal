@@ -1,7 +1,14 @@
 [build]
+  command = "npm ci && npm run build"
   publish = "dist"
-  command = "npm install && npm run build"
-  environment = { NODE_VERSION = "20", NODE_ENV = "production", SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}", SUPABASE_URL = "${SUPABASE_URL}" }
+
+[build.environment]
+  NODE_VERSION = "20.11.1"
+  NPM_VERSION = "10.7.0"
+  CI = "true"
+  NODE_ENV = "production"
+  SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
+  SUPABASE_URL = "${SUPABASE_URL}"
 
 [[redirects]]
   from = "/*"
