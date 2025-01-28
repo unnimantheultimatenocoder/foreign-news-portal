@@ -24,9 +24,9 @@ export const NewsCardActions = ({
   return (
     <div className="flex items-center gap-3 mt-auto pt-3">
       <Button
-        variant="outline"
+        variant="default"
         size={isMobile ? "default" : "sm"}
-        className="flex-1 text-xs sm:text-sm dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700 active:bg-accent/50"
+        className="flex-1 text-xs sm:text-sm bg-red-500 text-white"
         onClick={onReadMore}
         aria-label="Read full article"
       >
@@ -34,34 +34,34 @@ export const NewsCardActions = ({
         <span className="ml-1.5">Read article</span>
       </Button>
       <Button
-        variant="outline"
+        variant="default"
         size="icon"
-        className="dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:border-gray-700 active:bg-accent/50"
+        className="bg-red-500 text-white"
         onClick={onShare}
         aria-label="Share article"
       >
-        <Share2 className="w-4 h-4 sm:w-5 sm:h-5 dark:text-gray-100" />
+        <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
       <Button
-        variant={isSaved ? "default" : "outline"}
+        variant={isSaved ? "default" : "default"}
         size="icon"
         className={`${isSaved ? 
-          "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 active:bg-red-800" : 
-          "dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700 active:bg-accent/50"}`}
+          "bg-red-600 hover:bg-red-700 active:bg-red-800" : 
+          "bg-red-500 text-white"}`}
         onClick={onSave}
         aria-label={isSaved ? "Remove from saved articles" : "Save article"}
       >
-        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? 'fill-white' : 'dark:text-gray-100'}`} />
+        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? 'fill-white' : ''}`} />
       </Button>
       {showDelete && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30 dark:border-gray-700 active:bg-red-900/50"
-          onClick={onDelete}
-          aria-label="Delete article"
-        >
-          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 dark:text-gray-100" />
+      <Button
+        variant="default"
+        size="icon"
+        className="bg-red-500 text-white"
+        onClick={onDelete}
+        aria-label="Delete article"
+      >
+          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       )}
     </div>

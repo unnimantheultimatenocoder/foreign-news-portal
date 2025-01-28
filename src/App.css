@@ -35,6 +35,36 @@
   -moz-backface-visibility: hidden;
 }
 
+.news-card {
+  background-color: #1f2937;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.news-card h2 {
+  color: #dc2626;
+}
+
+.news-card button {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.news-card button:hover {
+  background-color: #2563eb;
+}
+
+.news-card button:active {
+  background-color: #1d4ed8;
+}
+
 /* Force GPU acceleration for smoother animations */
 .gpu-accelerated {
   transform: translateZ(0);

@@ -5,28 +5,28 @@
 @layer base {
   :root {
     /* Gradient colors - Light mode */
-    --gradient-1: 217 80% 98%; /* Google Blue tint */
-    --gradient-2: 280 60% 98%; /* Soft Purple tint */
-    --gradient-3: 0 60% 98%;   /* Red tint */
+    --gradient-1: 224 71.4% 4.1%; /* Grey 950 */
+    --gradient-2: 224 71.4% 4.1%; /* Grey 950 */
+    --gradient-3: 224 71.4% 4.1%; /* Grey 950 */
     
     /* Wave colors - Light mode */
-    --wave-color: 220 10% 45%;
+    --wave-color: 220 10% 95%;
     
     /* Base colors */
     --background: var(--gradient-1);
-    --foreground: 220 14% 20%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 14% 20%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 14% 20%;
-    --primary: 0 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --foreground: 210 20% 98%; /* Light text for dark background */
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 220 50% 60%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 225 25% 24%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 225 25% 24%;
+    --muted-foreground: 217.9 10.6% 75%;
+    --accent: 225 25% 24%;
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -37,7 +37,7 @@
 
   .dark {
     /* Gradient colors - Dark mode (based on dark.bg and category colors) */
-    --gradient-1: 224 25% 16%; /* Dark blue-gray (#1A1F2C) */
+    --gradient-1: 224 71.4% 4.1%; /* Grey 950 */
     --gradient-2: 280 30% 18%; /* Deep purple */
     --gradient-3: 220 25% 20%; /* Rich navy */
     
@@ -162,13 +162,13 @@
   -webkit-backdrop-filter: blur(8px);
   background: linear-gradient(
     135deg,
-    hsla(217, 80%, 99%, 0.95), /* Google Blue tint */
-    hsla(217, 80%, 98%, 0.92)
+    hsla(224, 71.4%, 8%, 0.95),
+    hsla(224, 71.4%, 6%, 0.92)
   );
-  border: 1px solid hsla(217, 80%, 90%, 0.2);
+  border: 1px solid hsla(224, 71.4%, 15%, 0.2);
   box-shadow: 
-    0 4px 6px -1px rgba(66, 133, 244, 0.05),
-    0 2px 4px -1px rgba(66, 133, 244, 0.03);
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 2px 4px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
 
@@ -176,13 +176,13 @@
   transform: translateY(-2px);
   background: linear-gradient(
     135deg,
-    hsla(217, 80%, 99%, 0.97),
-    hsla(217, 80%, 98%, 0.95)
+    hsla(224, 71.4%, 10%, 0.97),
+    hsla(224, 71.4%, 8%, 0.95)
   );
-  border: 1px solid hsla(217, 80%, 90%, 0.3);
+  border: 1px solid hsla(224, 71.4%, 20%, 0.3);
   box-shadow: 
-    0 10px 15px -3px rgba(66, 133, 244, 0.08),
-    0 4px 6px -2px rgba(66, 133, 244, 0.05);
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 .dark .news-card {

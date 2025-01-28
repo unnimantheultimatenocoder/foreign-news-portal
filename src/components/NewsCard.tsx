@@ -72,7 +72,7 @@ export const NewsCard = ({
         damping: 20,
         mass: 0.8
       }}
-      className="flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10"
+      className="flex flex-col h-full overflow-y-auto bg-black dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10"
       style={{
         touchAction: 'none',
         WebkitOverflowScrolling: 'touch'

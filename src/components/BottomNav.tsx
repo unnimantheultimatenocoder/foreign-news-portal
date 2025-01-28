@@ -45,7 +45,7 @@ export const BottomNav = () => {
 
   return (
     <motion.nav
-      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-3 sm:py-4 px-6 sm:px-8 flex justify-around items-center z-50"
+      className="fixed bottom-0 left-0 right-0 bg-[hsl(224,71.4%,4.1%)] border-t border-gray-800 py-3 sm:py-4 px-6 sm:px-8 flex justify-around items-center z-50"
     >
       <NavLink to="/" icon={Home} label="Home" />
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
