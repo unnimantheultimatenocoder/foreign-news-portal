@@ -4,34 +4,26 @@
 
 @layer base {
   :root {
-    /* Gradient colors - Light mode */
-    --gradient-1: 224 71.4% 4.1%; /* Grey 950 */
-    --gradient-2: 224 71.4% 4.1%; /* Grey 950 */
-    --gradient-3: 224 71.4% 4.1%; /* Grey 950 */
-    
-    /* Wave colors - Light mode */
-    --wave-color: 220 10% 95%;
-    
     /* Base colors */
-    --background: var(--gradient-1);
-    --foreground: 210 20% 98%; /* Light text for dark background */
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
+    --background: 250 5% 96%; /* stone-50 */
+    --foreground: 240 10% 3.9%; /* stone-900 */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
     --primary: 220 50% 60%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 225 25% 24%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 225 25% 24%;
-    --muted-foreground: 217.9 10.6% 75%;
-    --accent: 225 25% 24%;
-    --accent-foreground: 210 20% 98%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5% 84.9%;
     --radius: 0.5rem;
   }
 
@@ -75,84 +67,7 @@
   body {
     @apply text-foreground;
     padding-top: 40px;
-    background: 
-      /* Wave pattern overlay */
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        hsla(var(--wave-color) / 0.02) 10px,
-        hsla(var(--wave-color) / 0.02) 20px
-      ),
-      /* Animated gradient mesh */
-      radial-gradient(
-        circle at 0% 0%,
-        hsla(var(--gradient-1) / 0.9) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 100% 0%,
-        hsla(var(--gradient-2) / 0.8) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 50% 100%,
-        hsla(var(--gradient-3) / 0.9) 0%,
-        transparent 50%
-      ),
-      linear-gradient(
-        135deg,
-        hsl(var(--gradient-1)) 0%,
-        hsl(var(--gradient-2)) 50%,
-        hsl(var(--gradient-3)) 100%
-      );
-    background-attachment: fixed;
-    background-size: 20px 20px, 200% 200%, 200% 200%, 200% 200%, 200% 200%;
-    animation: gradientShift 30s ease-in-out infinite;
-    will-change: background-position;
-  }
-
-  @keyframes gradientShift {
-    0% {
-      background-position: 
-        0 0,
-        0% 0%,
-        100% 0%,
-        50% 100%,
-        0% 50%;
-    }
-    25% {
-      background-position: 
-        0 0,
-        100% 50%,
-        0% 100%,
-        50% 0%,
-        100% 50%;
-    }
-    50% {
-      background-position: 
-        0 0,
-        50% 100%,
-        50% 0%,
-        100% 50%,
-        50% 100%;
-    }
-    75% {
-      background-position: 
-        0 0,
-        0% 50%,
-        100% 50%,
-        0% 100%,
-        0% 50%;
-    }
-    100% {
-      background-position: 
-        0 0,
-        0% 0%,
-        100% 0%,
-        50% 100%,
-        0% 50%;
-    }
+    background-color: hsl(var(--background));
   }
 }
 
