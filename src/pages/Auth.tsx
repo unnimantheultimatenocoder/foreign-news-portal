@@ -114,7 +114,7 @@ const AuthPage = () => {
             const { error } = await supabase.auth.signInWithOAuth({
               provider: 'google',
               options: {
-                redirectTo: 'https://dancing-wisp-a20876.netlify.app/auth/callback',
+                redirectTo: 'https://dancing-wisp-a20876.netlify.app/auth/callback?auth=true',
               },
             });
             if (error) {
