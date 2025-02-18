@@ -13,7 +13,8 @@ const AuthPage = () => {
   const [view, setView] = useState<AuthView>("sign_in"); // Default view is sign_in
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash.substring(1); // Remove the '#'
+    const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
 
     if (accessToken) {
@@ -121,7 +122,7 @@ const AuthPage = () => {
             const { error } = await supabase.auth.signInWithOAuth({
               provider: 'google',
               options: {
-                redirectTo: 'https://dancing-wisp-a20876.netlify.app/auth/callback',
+                redirectTo: 'https://ekneusrruxypjyhgvivwh.supabase.co/auth/v1/callback',
               },
             });
             if (error) {
