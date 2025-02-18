@@ -222,7 +222,7 @@ const Home = (): ReactElement => {
         )}
       </main>
 
-      <BottomNav />
+      <BottomNav onHomeClick={handleRefresh} />
     </div>
   );
 };
