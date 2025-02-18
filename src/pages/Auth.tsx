@@ -13,6 +13,14 @@ const AuthPage = () => {
   const [view, setView] = useState<AuthView>("sign_in"); // Default view is sign_in
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get('access_token');
+
+    if (accessToken) {
+      localStorage.setItem('supabase_token', accessToken);
+      navigate('/');
+    }
+
     // Check if user is already logged in
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
@@ -21,7 +29,6 @@ const AuthPage = () => {
     });
 
     // Check for auth error in URL
-    const params = new URLSearchParams(window.location.search);
     const error = params.get('error_description');
     if (error) {
       // Handle rate limit error specifically
@@ -114,7 +121,7 @@ const AuthPage = () => {
             const { error } = await supabase.auth.signInWithOAuth({
               provider: 'google',
               options: {
-                redirectTo: 'https://dancing-wisp-a20876.netlify.app/auth/callback?auth=true',
+                redirectTo: 'https://dancing-wisp-a20876.netlify.app/auth/callback',
               },
             });
             if (error) {
