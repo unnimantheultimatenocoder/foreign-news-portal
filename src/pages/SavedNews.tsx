@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { TopNav } from "@/components/TopNav";
-import { getArticles } from "@/lib/api";
+import { getArticles } from "@/lib/api/articleApi";
 
 const SavedNews = () => {
   const title = 'Saved Articles';
@@ -13,9 +13,9 @@ const SavedNews = () => {
       const result = await getArticles({ saved: true });
       return result.articles;
     },
-    staleTime: 1000, // Cache data for 1 second
-    gcTime: 5000, // Keep cache for 5 seconds
-    refetchOnWindowFocus: false // Don't refetch on window focus
+    staleTime: 1000,
+    gcTime: 5000,
+    refetchOnWindowFocus: false
   });
 
   if (isLoading) {
@@ -31,7 +31,7 @@ const SavedNews = () => {
 
   if (!data || data.length === 0) {
     return (
-    <div className="min-h-screen pb-20">
+      <div className="min-h-screen pb-20">
         <TopNav title={title} />
         <main className="max-w-7xl mx-auto px-4 py-6">
           <div className="text-center py-20">

@@ -19,7 +19,7 @@ export const NewsCardContent = ({
 }: NewsCardContentProps) => {
   return (
     <div className="flex flex-col flex-grow space-y-2">
-      <h3 className="text-base sm:text-lg md:text-xl font-bold line-clamp-2 text-gray-100 tracking-tighter font-sans">
+      <h3 className="text-base sm:text-lg md:text-xl font-bold line-clamp-2 text-[#000000] dark:text-white tracking-tighter font-sans">
         {title}
       </h3>
       <div
@@ -27,17 +27,17 @@ export const NewsCardContent = ({
           expanded ? 'max-h-[1000px] mb-3' : 'max-h-[6em] overflow-hidden'
         }`}
       >
-        <p className="text-sm sm:text-base text-gray-300 leading-snug font-normal text-left font-sans">
+        <p className="text-sm sm:text-base text-[#000000] dark:text-white leading-snug font-normal text-left font-sans">
           {summary}
         </p>
       </div>
       <div className="flex items-center justify-between text-sm text-white">
         <div className="flex items-center space-x-3">
-          <span className="font-medium text-white hover:text-primary transition-colors">
+          <span className="font-medium text-[#000000] dark:text-white hover:text-primary transition-colors">
             {source}
           </span>
           <span className="text-white">•</span>
-          <span className="text-white font-medium">
+          <span className="text-[#000000] dark:text-white font-medium">
             {date}
           </span>
         </div>

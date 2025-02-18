@@ -11,7 +11,7 @@ export const ProfileHeader = () => {
     >
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <motion.h1 
-          className="text-2xl font-bold text-white"
+          className="text-2xl font-bold text-stone-900 dark:text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}

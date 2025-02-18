@@ -1,13 +1,19 @@
-import { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { NewsCardImage } from "./news/NewsCardImage";
 import { NewsCardContent } from "./news/NewsCardContent";
 import { NewsCardActions } from "./news/NewsCardActions";
-import { ShareMenu } from "./news/ShareMenu";
+import { Share2 } from "lucide-react";
 import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
 import { useSaveArticle } from "@/hooks/use-save-article";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NewsCardProps {
   id: string;
@@ -22,7 +28,20 @@ interface NewsCardProps {
   onSwipe?: (direction: "left" | "right" | "up" | "down") => void;
 }
 
-export const NewsCard = ({
+const areEqual = (prevProps: NewsCardProps, nextProps: NewsCardProps) => {
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.title === nextProps.title &&
+    prevProps.summary === nextProps.summary &&
+    prevProps.imageUrl === nextProps.imageUrl &&
+    prevProps.category === nextProps.category &&
+    prevProps.date === nextProps.date &&
+    prevProps.url === nextProps.url &&
+    prevProps.showDelete === nextProps.showDelete
+  );
+};
+
+export const NewsCard: React.FC<NewsCardProps> = React.memo(({
   id,
   title,
   summary,
@@ -33,19 +52,58 @@ export const NewsCard = ({
   showDelete = false,
   onDelete,
   onSwipe
-}: NewsCardProps) => {
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const isMobile = useIsMobile();
+  
   const { controls, handleDragEnd } = useSwipeGesture({ onSwipe, isMobile });
   const { isSaved, handleSave } = useSaveArticle(id);
   const { toast } = useToast();
 
-  const handleShare = () => {
-    setShowShareMenu(true);
+  const handleShare = async (platform: 'twitter' | 'facebook' | 'linkedin' | 'email' | 'copy') => {
+    const shareText = encodeURIComponent(`Check out this article: ${title}`);
+    const shareUrl = encodeURIComponent(
+      id
+        ? `https://aroundtheglobenews.netlify.app/${id}`
+        : 'https://aroundtheglobenews.netlify.app'
+    );
+
+    try {
+      switch (platform) {
+        case 'twitter':
+          window.open(`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`, '_blank');
+          break;
+        case 'facebook':
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
+          break;
+        case 'linkedin':
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank');
+          break;
+        case 'email':
+          window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${shareText}%0A%0A${shareUrl}`;
+          break;
+        case 'copy':
+          await navigator.clipboard.writeText(
+            id
+              ? `https://aroundtheglobenews.netlify.app/${id}`
+              : 'https://aroundtheglobenews.netlify.app'
+          );
+          toast({
+            title: "Link copied",
+            description: "The article link has been copied to your clipboard",
+          });
+          break;
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to share article",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleReadMore = () => {
+  const handleReadMore = useCallback(() => {
     if (url) {
       const properUrl = url.startsWith('http') ? url : `https://${url}`;
       window.open(properUrl, '_blank', 'noopener,noreferrer');
@@ -56,28 +114,34 @@ export const NewsCard = ({
         variant: "destructive"
       });
     }
-  };
+  }, [url, toast]);
+
+  const motionProps = useMemo(() => ({
+    drag: isMobile ? "y" as const : "x" as const,
+    dragConstraints: {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0
+    },
+    dragElastic: 0.5,
+    onDragEnd: handleDragEnd,
+    animate: controls,
+    initial: isMobile ? { y: 0 } : { x: 0 },
+    transition: {
+      type: "spring",
+      stiffness: 250,
+      damping: 20,
+      mass: 0.8
+    },
+    className: "flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] text-[#000000] dark:text-foreground rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10",
+    style: {
+      touchAction: 'none'
+    }
+  }), [isMobile, handleDragEnd, controls]);
 
   return (
-    <motion.div
-      drag={isMobile ? "y" : "x"}
-      dragElastic={0.5}
-      dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
-      onDragEnd={handleDragEnd}
-      animate={controls}
-      initial={isMobile ? { y: 0 } : { x: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 250,
-        damping: 20,
-        mass: 0.8
-      }}
-      className="flex flex-col h-full overflow-y-auto bg-black dark:bg-[#1A1F2C] rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10"
-      style={{
-        touchAction: 'none',
-        WebkitOverflowScrolling: 'touch'
-      }}
-    >
+    <motion.div {...motionProps}>
       <NewsCardImage imageUrl={imageUrl} title={title} />
       
       <div className="flex flex-col flex-grow p-3 sm:p-4 space-y-2.5">
@@ -97,15 +161,10 @@ export const NewsCard = ({
           onReadMore={handleReadMore}
           isSaved={isSaved}
           showDelete={showDelete}
+          title={title}
+          id={id}
         />
       </div>
-      
-      {showShareMenu && (
-        <ShareMenu
-          newsCardId={id}
-          title={title}
-        />
-      )}
     </motion.div>
   );
-};
+}, areEqual);
