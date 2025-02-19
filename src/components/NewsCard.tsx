@@ -41,18 +41,7 @@ const areEqual = (prevProps: NewsCardProps, nextProps: NewsCardProps) => {
   );
 };
 
-export const NewsCard: React.FC<NewsCardProps> = React.memo(({
-  id,
-  title,
-  summary,
-  imageUrl,
-  category,
-  date,
-  url,
-  showDelete = false,
-  onDelete,
-  onSwipe
-}) => {
+export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summary, imageUrl, category, date, url, showDelete = false, onDelete, onSwipe }) => {
   const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
   
@@ -115,31 +104,32 @@ export const NewsCard: React.FC<NewsCardProps> = React.memo(({
       });
     }
   }, [url, toast]);
-
   const motionProps = useMemo(() => ({
     drag: isMobile ? "y" as const : "x" as const,
-    dragConstraints: {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0
-    },
-    dragElastic: 0.5,
+    dragConstraints: { top: 0, bottom: 0, left: 0, right: 0 },
+    dragElastic: 0.9,
     onDragEnd: handleDragEnd,
     animate: controls,
     initial: isMobile ? { y: 0 } : { x: 0 },
     transition: {
       type: "spring",
-      stiffness: 250,
-      damping: 20,
-      mass: 0.8
+      stiffness: 400,
+      damping: 30,
+      mass: 0.6,
+      velocity: 2.5
     },
-    className: "flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] text-[#000000] dark:text-foreground rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10",
+    className: "flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] text-[#000000] dark:text-foreground rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10 gpu-accelerated",
     style: {
-      touchAction: 'none'
+      touchAction: "none" as const,
+      willChange: "transform" as const,
+      perspective: "1000px" as const,
+      backfaceVisibility: "hidden" as const,
+      transform: "translate3d(0,0,0)" as const,
+      WebkitFontSmoothing: "antialiased" as const,
+      WebkitTransform: "translate3d(0,0,0)" as const,
+      WebkitBackfaceVisibility: "hidden" as const
     }
   }), [isMobile, handleDragEnd, controls]);
-
   return (
     <motion.div {...motionProps}>
       <NewsCardImage imageUrl={imageUrl} title={title} />

@@ -11,7 +11,6 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
   const [isLoading, setIsLoading] = useState(false);
 
   const debouncedOnSwipe = async (direction: "left" | "right" | "up" | "down") => {
-    // Add debounce logic here
     if (isLoading) return;
     setIsLoading(true);
     try {
@@ -24,8 +23,8 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
   };
 
   const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 60; 
-    const swipeVelocityThreshold = 150; 
+    const swipeThreshold = 40;
+    const swipeVelocityThreshold = 100;
 
     if (isMobile) {
       const direction = info.offset.y > 0 ? "down" : "up";
@@ -35,47 +34,95 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
 
       if (meetsSwipeCriteria) {
         const displacement = Math.min(
-          Math.max(Math.abs(info.velocity.y) * 0.35, 120),
-          250
+          Math.max(Math.abs(info.velocity.y) * 0.5, 150),
+          300
         );
 
         await controls.start({
           y: info.offset.y > 0 ? displacement : -displacement,
           transition: {
             type: "spring",
-            stiffness: 800, 
-            damping: 10, 
-            velocity: info.velocity.y,
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            velocity: info.velocity.y * 1.5,
+            restSpeed: 0.005,
+            restDelta: 0.5
           }
         });
         await debouncedOnSwipe(direction);
-        controls.set({ y: 0 });
+        await controls.start({
+          y: 0,
+          transition: {
+            type: "spring",
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            restSpeed: 0.005,
+            restDelta: 0.5
+          }
+        });
       } else {
         controls.start({
           y: 0,
           transition: {
             type: "spring",
-            stiffness: 800, 
-            damping: 10
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            restSpeed: 0.005,
+            restDelta: 0.5
           }
         });
       }
     } else {
       const direction = info.offset.x > 0 ? "right" : "left";
+      const meetsSwipeCriteria =
+        Math.abs(info.offset.x) > swipeThreshold ||
+        Math.abs(info.velocity.x) > swipeVelocityThreshold;
 
-      if (Math.abs(info.offset.x) > swipeThreshold) {
+      if (meetsSwipeCriteria) {
+        const displacement = Math.min(
+          Math.max(Math.abs(info.velocity.x) * 0.5, 150),
+          300
+        );
+
         await controls.start({
-          x: info.offset.x > 0 ? 150 : -150,
-          transition: { 
+          x: info.offset.x > 0 ? displacement : -displacement,
+          transition: {
             type: "spring",
-            stiffness: 800, 
-            damping: 10
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            velocity: info.velocity.x * 1.5,
+            restSpeed: 0.005,
+            restDelta: 0.5
           }
         });
         await debouncedOnSwipe(direction);
-        controls.set({ x: 0 });
+        await controls.start({
+          x: 0,
+          transition: {
+            type: "spring",
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            restSpeed: 0.005,
+            restDelta: 0.5
+          }
+        });
       } else {
-        controls.start({ x: 0 });
+        controls.start({
+          x: 0,
+          transition: {
+            type: "spring",
+            stiffness: 800,
+            damping: 45,
+            mass: 0.8,
+            restSpeed: 0.005,
+            restDelta: 0.5
+          }
+        });
       }
     }
   };
