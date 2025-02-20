@@ -51,10 +51,11 @@ export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summar
 
   const handleShare = async (platform: 'twitter' | 'facebook' | 'linkedin' | 'email' | 'copy') => {
     const shareText = encodeURIComponent(`Check out this article: ${title}`);
+    const baseUrl = window.location.origin;
     const shareUrl = encodeURIComponent(
       id
-        ? `https://aroundtheglobenews.netlify.app/${id}`
-        : 'https://aroundtheglobenews.netlify.app'
+        ? `${baseUrl}/${id}`
+        : baseUrl
     );
 
     try {
@@ -74,8 +75,8 @@ export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summar
         case 'copy':
           await navigator.clipboard.writeText(
             id
-              ? `https://aroundtheglobenews.netlify.app/${id}`
-              : 'https://aroundtheglobenews.netlify.app'
+              ? `${window.location.origin}/${id}`
+              : window.location.origin
           );
           toast({
             title: "Link copied",
