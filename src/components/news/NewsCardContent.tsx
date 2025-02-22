@@ -19,35 +19,40 @@ export const NewsCardContent = ({
 }: NewsCardContentProps) => {
   return (
     <div className="flex flex-col flex-grow space-y-2">
-      <h3 className="text-base sm:text-lg font-semibold line-clamp-2 dark:text-gray-100">
+      <h3 className="text-base sm:text-lg md:text-xl font-bold line-clamp-2 text-[#000000] dark:text-white tracking-tighter font-sans">
         {title}
       </h3>
-      <div 
+      <div
         className={`relative transition-all duration-300 ease-in-out ${
-          expanded ? 'max-h-[1000px] mb-2' : 'max-h-[4.5em] overflow-hidden'
+          expanded ? 'max-h-[1000px] mb-3' : 'max-h-[6em] overflow-hidden'
         }`}
       >
-        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+        <p className="text-sm sm:text-base text-[#000000] dark:text-white leading-snug font-normal text-left font-sans">
           {summary}
         </p>
-        {!expanded && summary.length > 200 && (
-          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-[#1A1F2C] to-transparent" />
-        )}
       </div>
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2">
-          <span>{source}</span>
-          <span>•</span>
-          <span>{date}</span>
+      <div className="flex items-center justify-between text-sm text-white">
+        <div className="flex items-center space-x-3">
+          <span className="font-medium text-[#000000] dark:text-white hover:text-primary transition-colors">
+            {source}
+          </span>
+          <span className="text-white">•</span>
+          <span className="text-[#000000] dark:text-white font-medium">
+            {date}
+          </span>
         </div>
         {onToggleExpand && summary.length > 200 && (
           <button
             onClick={onToggleExpand}
-            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors py-1"
+            className="flex items-center gap-1.5 text-white hover:text-primary/90 active:text-primary/70 transition-colors py-1 font-medium"
             aria-label={expanded ? "Show less" : "Read more"}
           >
-            <span className="text-xs">{expanded ? "Show less" : "Read more"}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+            <span>{expanded ? "Show less" : "Read more"}</span>
+            <ChevronDown
+              className={`w-4 h-4 transition-all duration-300 ease-out ${
+                expanded ? 'rotate-180 transform-gpu' : ''
+              }`}
+            />
           </button>
         )}
       </div>

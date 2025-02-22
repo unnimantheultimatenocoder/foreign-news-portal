@@ -10,6 +10,7 @@ import {
   Settings,
   Tag,
   Rss,
+  Bell
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -68,6 +69,12 @@ export default function AdminDashboard() {
       icon: <Settings className="h-6 w-6" />,
       description: "System configuration",
       path: "/admin/settings"
+    },
+    {
+      title: "Notifications",
+      icon: <Bell className="h-6 w-6" />,
+      description: "Manage notification types",
+      path: "/admin/notifications"
     }
   ];
 

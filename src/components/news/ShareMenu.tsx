@@ -9,15 +9,19 @@ import {
 
 interface ShareMenuProps {
   title: string;
-  url: string;
+  newsCardId?: string;
 }
 
-export const ShareMenu = ({ title, url }: ShareMenuProps) => {
+export const ShareMenu = ({ title, newsCardId }: ShareMenuProps) => {
   const { toast } = useToast();
 
   const handleShare = async (platform: 'twitter' | 'facebook' | 'linkedin' | 'email' | 'copy') => {
     const shareText = encodeURIComponent(`Check out this article: ${title}`);
-    const shareUrl = encodeURIComponent(url);
+    const shareUrl = encodeURIComponent(
+      newsCardId 
+        ? `https://aroundtheglobenews.netlify.app/${newsCardId}`
+        : 'https://aroundtheglobenews.netlify.app'
+    );
 
     try {
       switch (platform) {
@@ -34,7 +38,11 @@ export const ShareMenu = ({ title, url }: ShareMenuProps) => {
           window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${shareText}%0A%0A${shareUrl}`;
           break;
         case 'copy':
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(
+            newsCardId 
+              ? `https://aroundtheglobenews.netlify.app/${newsCardId}`
+              : 'https://aroundtheglobenews.netlify.app'
+          );
           toast({
             title: "Link copied",
             description: "The article link has been copied to your clipboard",

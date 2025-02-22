@@ -2,22 +2,25 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
-import { getArticles } from "@/lib/api";
+import { TopNav } from "@/components/TopNav";
+import { getArticles } from "@/lib/api/articleApi";
 
 const SavedNews = () => {
+  const title = 'Saved Articles';
   const { data, isLoading } = useQuery({
     queryKey: ['savedArticles'],
     queryFn: async () => {
       const result = await getArticles({ saved: true });
       return result.articles;
     },
-    staleTime: 0, // Always fetch fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 1000,
+    gcTime: 5000,
+    refetchOnWindowFocus: false
   });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
           <p className="mt-4 text-secondary">Loading saved articles...</p>
@@ -26,13 +29,23 @@ const SavedNews = () => {
     );
   }
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="min-h-screen pb-20">
+        <TopNav title={title} />
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          <div className="text-center py-20">
+            <p className="text-gray-500">You haven't saved any articles yet.</p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-black dark:text-white">Saved Articles</h1>
-        </div>
-      </header>
+    <div className="min-h-screen pb-20">
+      <TopNav title={title} />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <AnimatePresence mode="popLayout">

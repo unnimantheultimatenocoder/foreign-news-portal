@@ -1,0 +1,21 @@
+[build]
+  command = "npm install --include=dev && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20.11.1"
+  NPM_VERSION = "10.7.0"
+  CI = "true"
+  NODE_ENV = "production"
+  SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
+  SUPABASE_URL = "${SUPABASE_URL}"
+
+[[redirects]]
+  from = "/auth/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

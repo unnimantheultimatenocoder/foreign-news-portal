@@ -55,20 +55,41 @@ export const useSaveArticle = (articleId: string) => {
       
       try {
         if (isSaved) {
-          await supabase
+          const { error: deleteError } = await supabase
             .from('saved_articles')
             .delete()
             .eq('user_id', session.user.id)
             .eq('article_id', articleId);
+
+          if (deleteError) {
+            toast({
+              title: "Error Removing Article",
+              description: "Failed to remove from saved articles. Please try again.",
+              variant: "destructive"
+            });
+            return;
+          }
 
           toast({
             title: "Removed from Saved Articles",
             description: "This article has been removed from your saved articles.",
           });
         } else {
-          await supabase
+          const { error: insertError } = await supabase
             .from('saved_articles')
-            .insert({ user_id: session.user.id, article_id: articleId });
+            .insert({ user_id: session.user.id, article_id: articleId })
+            .select();
+
+          if (insertError) {
+            if (insertError.code === '23505') { // Unique constraint violation
+              toast({
+                title: "Already Saved",
+                description: "This article is already in your saved articles",
+              });
+              return;
+            }
+            throw insertError;
+          }
 
           toast({
             title: "Saved Article",

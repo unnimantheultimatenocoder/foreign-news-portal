@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,46 +16,51 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get article data from request
-    const { articleId, categoryId } = await req.json()
+    // Get notification data from request
+    const { notificationType, content, scheduledAt } = await req.json()
 
-    // Get all users who have subscribed to this category
-    const { data: userPreferences } = await supabase
-      .from('user_category_preferences')
-      .select('user_id')
-      .eq('category_id', categoryId)
-
-    if (!userPreferences) {
-      return new Response(
-        JSON.stringify({ error: 'No users found for this category' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Get article details
-    const { data: article } = await supabase
-      .from('articles')
-      .select('title, category:categories(name)')
-      .eq('id', articleId)
+    // Verify notification type exists
+    const { data: notificationTypeData } = await supabase
+      .from('notification_types')
+      .select('*')
+      .eq('name', notificationType)
       .single()
 
-    if (!article) {
+    if (!notificationTypeData) {
       return new Response(
-        JSON.stringify({ error: 'Article not found' }),
+        JSON.stringify({ error: 'Invalid notification type' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Insert notifications for each user
-    const notifications = userPreferences.map((pref) => ({
-      user_id: pref.user_id,
-      article_id: articleId,
-      message: `New article in ${article.category.name}: ${article.title}`,
+    // Get users who have enabled this notification type
+    const { data: userPreferences } = await supabase
+      .from('user_notification_preferences')
+      .select('user_id')
+      .eq('notification_type_id', notificationTypeData.id)
+      .eq('enabled', true)
+
+    if (!userPreferences || userPreferences.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No users found for this notification type' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Create notification records
+    const notifications = userPreferences.map(user => ({
+      user_id: user.user_id,
+      notification_type_id: notificationTypeData.id,
+      content,
+      scheduled_at: scheduledAt || new Date().toISOString(),
+      delivery_status: 'pending'
     }))
 
+    // Insert notifications for each user
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert(notifications)
+      .select()
 
     if (notificationError) {
       throw notificationError

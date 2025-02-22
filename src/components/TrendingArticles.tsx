@@ -92,15 +92,15 @@ export const TrendingArticles = () => {
                   <h3 className="font-medium line-clamp-2">{article.title}</h3>
                   <div className="flex items-center gap-4 mt-2 text-sm text-secondary">
                     <span className="flex items-center gap-1">
-                      <Bookmark className="w-4 h-4" />
+                      <Bookmark className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                       {article.saves_count || 0}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Share2 className="w-4 h-4" />
+                      <Share2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                       {article.shares_count || 0}
                     </span>
                     <span className="flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4" />
+                      <TrendingUp className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                       {article.trending_score || 0}
                     </span>
                   </div>

@@ -88,7 +88,7 @@ export const AccountInfo = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-xl font-semibold text-black dark:text-white mb-4"
+        className="text-xl font-semibold text-stone-900 dark:text-white mb-4"
       >
         Account Information
       </motion.h2>
@@ -98,7 +98,7 @@ export const AccountInfo = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <label htmlFor="email" className="block text-sm font-medium text-black dark:text-white">
+          <label htmlFor="email" className="block text-sm font-medium text-stone-900 dark:text-white">
             Email
           </label>
           <Input
@@ -106,7 +106,7 @@ export const AccountInfo = () => {
             type="email"
             value={user?.email || ""}
             disabled
-            className="mt-1 text-black dark:text-white"
+            className="mt-1 text-stone-900 dark:text-white"
           />
         </motion.div>
         <motion.div

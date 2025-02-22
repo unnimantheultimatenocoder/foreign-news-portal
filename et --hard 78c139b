@@ -1,0 +1,156 @@
+[33m78c139b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mweb-app-only[m[33m, [m[1;32mbackup-mobile-app[m[33m)[m Implement push notification system
+[33mcf9079a[m Update: Redesigned authentication page UI
+[33m646e1c5[m Highlight active category buttons with red background and hover effects
+[33m80e78b5[m Improve icon visibility in both light and dark mode for Discover section
+[33m566c9de[m Improve icon visibility in dark mode for Discover section
+[33ma60bdcc[m Optimized SavedNews page: reduced lag, fixed dark mode, aligned titles
+[33mc4bcb3d[m Update font styling of AroundTheGlobe title
+[33m20cab3b[m Reduce unnecessary movement in NewsCard component
+[33mc3bb5b0[m Apply consistent color scheme
+[33m3b56ee0[m fix: improve icon visibility in light mode for Trending Articles
+[33m519d0a4[m Commit changes
+[33me29c3e0[m Update category filter button colors for better light mode contrast
+[33m42d2976[m chore: commit changes
+[33m1469c97[m Add image interaction features to NewsCardImage
+[33m5f341cb[m Fix: Stabilize title in top navigation bar during swipe transitions
+[33m0a124da[m Improved swipe gesture stability and UI transitions
+[33m469bed5[m Updated header layout and font style for better visual prominence
+[33mc2d4e99[m Optimized mobile view spacing in Home.tsx
+[33mb7f1119[m Fix mobile layout and scrolling issues on news cards
+[33mf3bb44a[m Improve mobile UI stability
+[33m870d623[m Adjust mobile spacing for navigation
+[33m649682d[m Fix API URL error handling
+[33m031b21b[m Implement swipe gestures for news navigation
+[33m555f7f8[m Improve mobile scrolling experience
+[33mda29004[m Reverted to edit 21548b29-97e9-4356-9e33-557e9fd2a40c: "Refactor UI Spacing
+[33m05eeb60[m Fix API URL error handling
+[33m08e3e75[m Improve mobile view spacing
+[33m01ab960[m Reverted to edit 6068a935-1eb6-42cd-97fc-cefe6e081216: "Refactor NewsCard component
+[33m6959897[m Refactor UI Spacing
+[33m2475e5c[m Refactor NewsCard component
+[33m6799abc[m Implement swiping gesture feature
+[33m34ea6d0[m Improve NewsCard UI Responsiveness
+[33m3cc1d80[m Reverted to edit 449eef1f-9342-455b-95c6-c942d28264df: "fix: improve mobile responsiveness for NewsCard and TopNav components"
+[33m142ff7d[m Fix refresh token error
+[33m19cbb69[m Remove All Button and Add Dropdown
+[33m8f05eb4[m fix: improve mobile responsiveness for NewsCard and TopNav components
+[33m7557c10[m Improve Home Page UI and Image Optimization
+[33mc75aa2f[m Improve Dark Mode Styles
+[33mf3c7956[m Add local image upload feature
+[33m6118bf5[m Fix API call error handling
+[33m703fd6d[m Fix authentication redirect issue
+[33meb52e82[m Fix refresh token error
+[33m16f8119[m Modify save button behavior
+[33m5c83bc8[m Fix category selection issue
+[33m46128be[m Fix category selection in article creation
+[33mae5ade0[m Fix category dropdown in ArticleForm
+[33m24964ab[m Enhance dark mode appearance
+[33m5c3b89d[m Improve save/unsave article responsiveness
+[33mb50675b[m Fix API URL error handling
+[33me6024ba[m Fix TypeScript errors in components
+[33mff8f4f6[m Update layout and fix issues
+[33md4a1c44[m Fix TypeScript errors in NewsCard
+[33ma10d935[m Fix spacing and page issues
+[33m6140397[m Update button styles and add delete functionality
+[33m6720074[m Fix Supabase query error
+[33m698ef06[m Fix duplicate key error
+[33me880d55[m Update UI for Home and Profile Pages
+[33m1e47b4f[m Fix duplicate key error
+[33m18413c9[m Fix save button and text color
+[33macf464a[m Fix UUID placeholder issue in API call
+[33m551a51e[m Fix authentication session errors
+[33m3881e5d[m Fix errors in AccountInfo component
+[33m8e21593[m Fix authentication errors
+[33mda0b7a3[m Fix empty admin pages
+[33mb958c30[m Fix API error handling
+[33m96759ba[m Fix Supabase article query error
+[33m24548f0[m Fix API call error
+[33mff18ddf[m Fix API call error
+[33ma624d62[m Fix invalid UUID error
+[33mb76e5b7[m Fix invalid UUID input error
+[33mc38f58a[m Fix API call error handling
+[33m44b2c53[m Fix invalid UUID input error
+[33me82446f[m Fix UUID input error
+[33mdb6887f[m Fix API call error for articles
+[33m78d7958[m Fix API call error
+[33m4a95e77[m Fix TypeScript error in ArticleForm
+[33m7bef507[m Fix API call error
+[33mdc7706e[m Fix UUID input error
+[33m7b26797[m Add delete functionality for articles
+[33mf46e923[m Fix Supabase saved articles query
+[33m21a34b3[m Fix publish and edit buttons
+[33m7fd4a74[m Fix TypeScript errors in NotificationPreferences
+[33m8a5f236[m Fix TypeScript errors in NotificationPreferences
+[33m69b9eb1[m Fix errors in API calls and types
+[33maa10858[m Fix API error handling
+[33m7bb7843[m Fix profile loading issue
+[33m9aa0f55[m Fix URL error handling
+[33mff1778c[m Fix 404 error on API call
+[33md3dd42b[m Change header text color
+[33me7ed4bf[m Fix button toggling and animations
+[33me131cf9[m Refactor Profile component and enhance dark mode
+[33m46503ec[m Add theme toggle button to profile page
+[33m63ca626[m Add dark mode and light mode feature
+[33m1ab1399[m Update BottomNav and Add Dropdown
+[33md53ec3e[m Check commit and push status
+[33m2fc0213[m Restore button animation and admin panel access
+[33mf15b2e0[m Add admin access button
+[33m0cb5f1a[m Enable Push Notifications and Admin Setup
+[33m839c899[m Committing 3 changes
+[33m9010f5c[m Fix TypeScript error in Home.tsx
+[33m9b8d52c[m Fix runtime errors in code
+[33m4f35061[m Fix TypeError in Infinite Query
+[33mf92adfb[m Fix TypeError in Infinite Query
+[33m90b2fb0[m Fix TypeError in Infinite Query
+[33mb8ee9f3[m Fix runtime TypeError in pagination
+[33m1d69d1e[m Fix runtime TypeError in queries
+[33m08750b3[m Fix runtime error in pagination
+[33m564189d[m Fix Supabase query error
+[33mb13462e[m Fix errors in article fetching
+[33m814e960[m Fix Supabase query error
+[33m7dd564c[m Fix type errors in articleApi.ts
+[33m2f927b9[m Run SQL review changes
+[33me8c5a76[m Fix TypeScript errors in articleApi.ts
+[33mcb5ff41[m Add content discovery features
+[33m2a78a86[m Refactor API file structure
+[33m6e7f27a[m Fix TypeScript errors in API
+[33m87d6a2b[m Fix API errors in article retrieval
+[33m5787c93[m Fix API error for articles query
+[33med1f212[m Implement core features for articles
+[33mdede017[m Fix categories mapping error
+[33m72f3aa6[m Fix TypeError in context usage
+[33mc729b05[m Fix build errors in Home.tsx
+[33mdb3c5dd[m Add new features and enhancements
+[33mc0cf190[m Fix TypeScript errors in AIChat
+[33mf357dba[m Fix categories page and admin account issues
+[33m12aa72b[m Implement AI Agent Infrastructure
+[33m67cf724[m Implement user management system
+[33md720278[m Fix export issues in AdminRoute
+[33m22cae6e[m Fix runtime and TypeScript errors
+[33m2f87906[m Fix runtime errors in ArticleForm
+[33mbcf3c39[m Implement article management features
+[33m6c89173[m Create admin UI features
+[33m9ff397b[m Fix signup rate limit error
+[33m7f82fcd[m Fix TypeScript error in Auth.tsx
+[33m9de3e61[m Run reviewed SQL script
+[33m0bcaa09[m Fix authentication error handling
+[33m851c7ce[m Fix authentication error handling
+[33m1a75e6e[m Fix TypeScript error in Auth.tsx
+[33mdd9fc25[m Fix authentication error handling
+[33m00e7b6d[m Fix missing id in NewsCardProps
+[33md1e90aa[m Implement authentication and notifications
+[33m577927d[m Fix TypeScript errors in Index.tsx
+[33m7d33cbc[m Optimize Performance and Images
+[33m78d3105[m Implement testing and error handling
+[33mfebd1bd[m Fix undefined error in CategoryFilter
+[33m972548b[m Fix runtime errors in components
+[33m7557fa9[m Run SQL review changes
+[33mebc01c9[m Fix 404 error in API call
+[33m726d2bb[m Fix TypeScript error in API
+[33m92233c8[m Fix API errors and TypeScript issues
+[33m55eee4e[m Implement user flow and core features
+[33me824145[m Implement API endpoints and triggers
+[33m0be32d4[m Set up database schema and API
+[33m587ed6a[m Connect Supabase project
+[33m0e8624e[m Implement news aggregation app structure
+[33mec45dc5[m Use tech stack vite_react_shadcn_ts [skip gpt_engineer]

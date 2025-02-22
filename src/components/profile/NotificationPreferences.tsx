@@ -135,7 +135,7 @@ export const NotificationPreferences = () => {
     >
       <motion.h2 
         variants={itemVariants}
-        className="text-xl font-semibold text-black dark:text-white mb-6"
+        className="text-xl font-semibold text-stone-900 dark:text-white mb-6"
       >
         Notification Preferences
       </motion.h2>
@@ -146,8 +146,8 @@ export const NotificationPreferences = () => {
           className="flex items-center justify-between"
         >
           <div>
-            <h3 className="text-lg font-medium text-black dark:text-white">Email Notifications</h3>
-            <p className="text-sm text-black/70 dark:text-white/70">Receive news updates via email</p>
+            <h3 className="text-lg font-medium text-stone-900 dark:text-white">Email Notifications</h3>
+            <p className="text-sm text-white/70">Receive news updates via email</p>
           </div>
           <Switch
             checked={preferences?.notification_settings?.email || false}
@@ -160,8 +160,8 @@ export const NotificationPreferences = () => {
           className="flex items-center justify-between"
         >
           <div>
-            <h3 className="text-lg font-medium text-black dark:text-white">Push Notifications</h3>
-            <p className="text-sm text-black/70 dark:text-white/70">Get instant updates on your device</p>
+            <h3 className="text-lg font-medium text-stone-900 dark:text-white">Push Notifications</h3>
+            <p className="text-sm text-white/70">Get instant updates on your device</p>
           </div>
           <Switch
             checked={preferences?.notification_settings?.push || false}

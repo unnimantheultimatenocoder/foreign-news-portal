@@ -51,16 +51,30 @@ export const getArticles = async ({
 
     if (saved) {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: savedArticles } = await supabase
+      if (!user) {
+        return { articles: [], hasMore: false, nextPage: undefined };
+      }
+      
+      try {
+        const { data: savedArticles, error } = await supabase
           .from('saved_articles')
           .select('article_id')
           .eq('user_id', user.id);
 
-        if (savedArticles) {
-          const articleIds = savedArticles.map(sa => sa.article_id);
-          query = query.in('id', articleIds);
+        if (error) {
+          console.error('Error fetching saved articles:', error);
+          return { articles: [], hasMore: false, nextPage: undefined };
         }
+
+        if (!savedArticles || savedArticles.length === 0) {
+          return { articles: [], hasMore: false, nextPage: undefined };
+        }
+
+        const articleIds = savedArticles.map(sa => sa.article_id);
+        query = query.in('id', articleIds);
+      } catch (error) {
+        console.error('Error in saved articles query:', error);
+        return { articles: [], hasMore: false, nextPage: undefined };
       }
     }
 
