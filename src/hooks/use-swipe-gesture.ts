@@ -46,7 +46,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             damping: 45,
             mass: 0.8,
             velocity: info.velocity.y * 1.5,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
@@ -58,7 +58,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             stiffness: 800,
             damping: 45,
             mass: 0.8,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
@@ -70,7 +70,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             stiffness: 800,
             damping: 45,
             mass: 0.8,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
@@ -95,7 +95,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             damping: 45,
             mass: 0.8,
             velocity: info.velocity.x * 1.5,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
@@ -107,7 +107,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             stiffness: 800,
             damping: 45,
             mass: 0.8,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
@@ -119,7 +119,7 @@ export const useSwipeGesture = ({ onSwipe, isMobile = false }: UseSwipeGesturePr
             stiffness: 800,
             damping: 45,
             mass: 0.8,
-            restSpeed: 0.005,
+            restSpeed: 1000.005,
             restDelta: 0.5
           }
         });
