@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { NewsCardImage } from "./news/NewsCardImage";
@@ -8,6 +8,7 @@ import { Share2 } from "lucide-react";
 import { useSwipeGesture } from "@/hooks/use-swipe-gesture";
 import { useSaveArticle } from "@/hooks/use-save-article";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useArticleHistory } from "@/hooks/use-article-history";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,15 @@ const areEqual = (prevProps: NewsCardProps, nextProps: NewsCardProps) => {
 export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summary, imageUrl, category, date, url, showDelete = false, onDelete, onSwipe }) => {
   const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
+  const { markAsRead, isArticleRead } = useArticleHistory();
+  const isRead = isArticleRead(id);
+
+  useEffect(() => {
+    // Mark article as read when it's expanded or when read more is clicked
+    if (expanded) {
+      markAsRead(id);
+    }
+  }, [expanded, id, markAsRead]);
   
   const { controls, handleDragEnd } = useSwipeGesture({ onSwipe, isMobile });
   const { isSaved, handleSave } = useSaveArticle(id);
@@ -95,6 +105,7 @@ export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summar
 
   const handleReadMore = useCallback(() => {
     if (url) {
+      markAsRead(id);
       const properUrl = url.startsWith('http') ? url : `https://${url}`;
       window.open(properUrl, '_blank', 'noopener,noreferrer');
     } else {
@@ -119,7 +130,7 @@ export const NewsCard: React.FC<NewsCardProps> = React.memo(({ id, title, summar
       mass: 0.6,
       velocity: 2.5
     },
-    className: "flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] text-[#000000] dark:text-foreground rounded-xl border border-gray-200 dark:border-gray-800/50 shadow-sm hover:shadow-lg transition-all duration-300 relative z-10 gpu-accelerated",
+    className: `flex flex-col h-full overflow-y-auto bg-white dark:bg-[#1A1F2C] text-[#000000] dark:text-foreground rounded-xl border ${isRead ? 'border-gray-300 dark:border-gray-700/50' : 'border-gray-200 dark:border-gray-800/50'} shadow-sm hover:shadow-lg transition-all duration-300 relative z-10 gpu-accelerated ${isRead ? 'opacity-80' : 'opacity-100'}`,
     style: {
       touchAction: "none" as const,
       willChange: "transform" as const,

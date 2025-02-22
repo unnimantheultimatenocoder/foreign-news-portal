@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getCategories } from "@/lib/api";
 import type { Category } from "@/lib/api/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { NewsCard } from "@/components/NewsCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useInView } from "react-intersection-observer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { ReactElement } from 'react';
+import { PullToRefresh } from "../components/PullToRefresh";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -127,7 +128,7 @@ const Home = (): ReactElement => {
       <div className="fixed top-0 left-0 right-0 z-[1000]">
         <header className="border-b border-gray-200 dark:border-gray-800 bg-opacity-90 backdrop-blur-sm">
           <div className="max-w-5xl mx-auto">
-            <div className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden flex items-center justify-between">
               <CategoryFilter
                 selectedCategory={selectedCategoryName}
                 onSelectCategory={(categoryId) => {
@@ -143,6 +144,15 @@ const Home = (): ReactElement => {
                   }
                 }}
               />
+              {isMobile && (
+                <button
+                  className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md"
+                  onClick={handleRefresh}
+                  aria-label="Refresh articles"
+                >
+                  <RefreshCw className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                </button>
+              )}
             </div>
           </div>
         </header>
@@ -196,29 +206,31 @@ const Home = (): ReactElement => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            aria-label="News articles grid"
-          >
-            {allArticles.map((article) => (
-              <NewsCard
-                key={article.id}
-                {...formatArticleForNewsCard(article)}
-                aria-label={`Article: ${article.title}`}
-              />
-            ))}
-            {hasNextPage && (
-              <div 
-                ref={loadMoreRef} 
-                className="flex justify-center mt-8 col-span-full"
-                aria-label="Loading more articles"
-              >
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
-              </div>
-            )}
-          </motion.div>
+          <PullToRefresh onRefresh={handleRefresh} disabled={articlesLoading}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              aria-label="News articles grid"
+            >
+              {allArticles.map((article) => (
+                <NewsCard
+                  key={article.id}
+                  {...formatArticleForNewsCard(article)}
+                  aria-label={`Article: ${article.title}`}
+                />
+              ))}
+              {hasNextPage && (
+                <div 
+                  ref={loadMoreRef} 
+                  className="flex justify-center mt-8 col-span-full"
+                  aria-label="Loading more articles"
+                >
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+                </div>
+              )}
+            </motion.div>
+          </PullToRefresh>
         )}
       </main>
 

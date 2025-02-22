@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, BookmarkIcon, User, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 
 export const BottomNav = ({ onHomeClick }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const { data: isAdmin } = useQuery({
     queryKey: ['admin-check'],
     queryFn: async () => {
@@ -43,11 +45,19 @@ export const BottomNav = ({ onHomeClick }) => {
     );
   };
 
+  const handleHomeClick = () => {
+    if (location.pathname === '/') {
+      onHomeClick?.();
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <motion.nav
       className="fixed bottom-0 left-0 right-0 bg-[hsl(224,71.4%,4.1%)] border-t border-gray-800 py-3 sm:py-4 px-6 sm:px-8 flex justify-around items-center z-50"
     >
-      <button onClick={() => { onHomeClick(); window.location.reload(); }}><NavLink to="/" icon={Home} label="Home" /></button>
+      <button onClick={handleHomeClick}><NavLink to="/" icon={Home} label="Home" /></button>
       <NavLink to="/saved" icon={BookmarkIcon} label="Saved" />
       <NavLink to="/profile" icon={User} label="Profile" />
       {isAdmin && (
